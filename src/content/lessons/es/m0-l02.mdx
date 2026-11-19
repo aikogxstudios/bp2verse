@@ -1,0 +1,100 @@
+---
+id: M0-L02
+lang: es
+module: "M0"
+order: 2
+title: "Tu primer programa"
+description: "Cómo usar Print e interpolación de texto con llaves en lugar de nodos Append y To String."
+duration: "6 min"
+run: browser
+verifiedAt: "2026-11-19"
+sources:
+  - label: "Modify and Run Your First Verse Program (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/fortnite/modify-and-run-your-first-verse-program-in-unreal-editor-for-fortnite"
+  - label: "Debugging and Troubleshooting in Verse (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/uefn/debugging-and-troubleshooting-in-verse"
+  - label: "Book of Verse — Primitive Types"
+    url: "https://verselang.github.io/book/02_primitives/"
+  - label: "Basic Scripting with Blueprints (UE 5.8)"
+    url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/basic-scripting-with-blueprints-in-unreal-engine?application_version=5.8"
+---
+
+<Compare>
+<Fragment slot="bp">
+
+### Lo que ya haces en Blueprints
+
+Para comprobar valores rápido en el **Event Graph**, sacas un nodo **`Print String`**. Si quieres combinar texto y números (por ejemplo, el nombre del héroe y su puntuación), añades un nodo **`Append`** (`String`), conectas pines de entrada `A`, `B`, `C` y dejas que Unreal inserte pequeños nodos de conversión automática **`To String (Integer)`** antes de llegar a **`In String`**.
+
+- **Patrón Blueprint:** `Event BeginPlay` → `Append` (`"Total: "` + `To String (Integer)` de `BaseScore + Bonus`) → `Print String` (`In String`).
+- **Nombres oficiales de nodos (EN):** `Print String` (`In String`), `Append` (`String`), `To String (Integer)`, `Add` (`Integer + Integer`).
+
+</Fragment>
+<Fragment slot="verse">
+
+### Equivalente en Verse
+
+En Verse no necesitas encadenar nodos `Append` ni cajas de conversión: **interpolas valores y cálculos directamente dentro de las comillas** usando llaves `{...}` y se los pasas a `Print("...")`.
+
+<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
+
+HeroName : string = "Kai"
+BaseScore : int = 50
+Bonus : int = 25
+
+Print("Hero: {HeroName}")
+Print("Base: {BaseScore}, Bonus: {Bonus}")
+Print("Total: {BaseScore + Bonus}")`} />
+
+**Salida exacta (`verse-js` 0.1.1):**
+
+```text
+Hero: Kai
+Base: 50, Bonus: 25
+Total: 75
+```
+
+</Fragment>
+</Compare>
+
+## Anotación línea a línea
+
+| Línea | Qué hace | Equivalente en Blueprints |
+|---|---|---|
+| `1` | `using { /UnrealEngine.com/Temporary/Diagnostics }` importa `Print`. | Acceso integrado al nodo `Print String`. |
+| `3` | `HeroName : string = "Kai"` define un texto inmutable (`string`). | Variable `String` con valor por defecto `"Kai"`. |
+| `4` | `BaseScore : int = 50` define un entero inmutable (`int`). | Variable `Integer` con valor `50`. |
+| `5` | `Bonus : int = 25` define otro entero inmutable (`int`). | Variable `Integer` con valor `25`. |
+| `7` | `Print("Hero: {HeroName}")` sustituye `{HeroName}` por `"Kai"` e imprime la línea. | `Append` (`"Hero: "`, `HeroName`) → `Print String`. |
+| `8` | `Print("Base: {BaseScore}, Bonus: {Bonus}")` inserta dos enteros en un solo string sin nodos de conversión visibles. | `Append` con 4 pines y dos `To String (Integer)` → `Print String`. |
+| `9` | `Print("Total: {BaseScore + Bonus}")` evalúa la suma `50 + 25` dentro de `{...}` e imprime `Total: 75`. | `Add (Integer)` → `To String (Integer)` → `Append` → `Print String`. |
+
+> **Nota de simulador (`run: browser`):** El simulador `verse-js` permite ejecutar `Print(...)` directamente en el nivel superior del archivo para probar rápido. En **UEFN**, el código ejecutable debe ir dentro de una función como `OnBegin` en tu `creative_device` (M0-L01). Además, en UEFN `Print` admite argumentos opcionales como `?Duration` o `?Color`; `verse-js` solo implementa `Print("...")`.
+
+<Callout variant="trap" title="Trampa del migrante">
+En Blueprints puedes arrastrar un pin verde de `Integer` directo al pin magenta `In String` de `Print String` porque el editor inserta un `To String` invisible; en Verse **`Print(BaseScore)` no compila** (`Argument 1 expects string, got int`). Siempre debes envolverlo en comillas con `{...}` (`Print("{BaseScore}")`) y, en UEFN, acordarte de importar `/UnrealEngine.com/Temporary/Diagnostics`.
+</Callout>
+
+## Micro-ejercicio
+
+<Exercise
+  statement={"Declara dos constantes Stage : int = 2 y Coins : int = 15, y usa una sola llamada a Print con interpolación {...} para imprimir exactamente \"Stage 2 | Coins: 15 | Double: 30\"."}
+  hint={"Puedes poner operaciones aritméticas dentro de las llaves, por ejemplo {Coins * 2}, todo dentro de una única cadena entre comillas dobles."}
+>
+<Fragment slot="solution">
+
+<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
+
+Stage : int = 2
+Coins : int = 15
+
+Print("Stage {Stage} | Coins: {Coins} | Double: {Coins * 2}")`} />
+
+**Salida esperada (`verse-js` 0.1.1):**
+
+```text
+Stage 2 | Coins: 15 | Double: 30
+```
+
+</Fragment>
+</Exercise>

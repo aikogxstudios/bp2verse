@@ -1,0 +1,90 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Demo from '../../components/Demo.astro';
+import { useTranslations } from '../../i18n/ui';
+
+const t = useTranslations('en');
+const verseDocs = 'https://dev.epicgames.com/documentation/en-us/uefn/verse-in-unreal-engine';
+
+const why = [
+  { n: 1, title: t('why.1.title'), body: t('why.1.body') },
+  { n: 2, title: t('why.2.title'), body: t('why.2.body') },
+  { n: 3, title: t('why.3.title'), body: t('why.3.body') },
+] as const;
+
+const modules = [
+  { n: 'm0', kicker: t('modules.m0.kicker'), title: t('modules.m0.title'), body: t('modules.m0.body'), count: t('modules.m0.count') },
+  { n: 'm1', kicker: t('modules.m1.kicker'), title: t('modules.m1.title'), body: t('modules.m1.body'), count: t('modules.m1.count') },
+  { n: 'm2', kicker: t('modules.m2.kicker'), title: t('modules.m2.title'), body: t('modules.m2.body'), count: t('modules.m2.count') },
+  { n: 'm3', kicker: t('modules.m3.kicker'), title: t('modules.m3.title'), body: t('modules.m3.body'), count: t('modules.m3.count') },
+] as const;
+---
+
+<BaseLayout lang="en">
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <p class="hero-badge">{t('hero.badge')}</p>
+      <h1>{t('hero.title')}</h1>
+      <p class="hero-subtitle">{t('hero.subtitle')}</p>
+      <div class="hero-actions">
+        <a class="btn btn--primary" href="#demo">{t('hero.cta')}</a>
+        <a class="btn btn--ghost" href="#modulos">{t('hero.cta2')}</a>
+      </div>
+      <p class="hero-note">{t('hero.note')}</p>
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <Demo lang="en" />
+
+  <!-- Why now -->
+  <section class="section" id="porque" aria-labelledby="porque-heading">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="porque-heading">{t('why.title')}</h2>
+        <p>{t('why.subtitle')}</p>
+      </div>
+      <div class="cards cards--why">
+        {why.map((card) => (
+          <article class="card">
+            <h3>{card.title}</h3>
+            <p>{card.body}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Curriculum -->
+  <section class="section" id="modulos" aria-labelledby="modulos-heading">
+    <div class="container">
+      <div class="section-head">
+        <h2 id="modulos-heading">{t('modules.title')}</h2>
+        <p>{t('modules.subtitle')}</p>
+      </div>
+      <p class="modules-total">{t('modules.total')}</p>
+      <div class="cards cards--modules">
+        {modules.map((m) => (
+          <article class="card">
+            <p class="card-kicker">{m.kicker}</p>
+            <h3>{m.title}</h3>
+            <p>{m.body}</p>
+            <p class="card-count">{m.count}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Honesty -->
+  <section class="section" aria-labelledby="honesto-heading">
+    <div class="container">
+      <div class="honest-box">
+        <h2 id="honesto-heading">{t('honest.title')}</h2>
+        <p>{t('honest.body')}</p>
+        <a class="honest-link" href={verseDocs} target="_blank" rel="noopener noreferrer">{t('honest.link')}</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

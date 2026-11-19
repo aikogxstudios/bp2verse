@@ -1,0 +1,110 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<section class="section" id="demo" aria-labelledby="demo-heading">
+  <div class="container">
+    <h2 class="visually-hidden" id="demo-heading">{t('demo.title')}</h2>
+
+    <div class="demo-grid">
+      <!-- Blueprint · Event Graph -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-dot panel-dot--bp" aria-hidden="true"></span>
+          <p class="panel-title">
+            {t('demo.bp')} <span class="panel-sub">· {t('demo.bpSub')}</span>
+          </p>
+        </div>
+        <div class="panel-body">
+          <div class="bp-graph" role="img" aria-label={t('a11y.graph')}>
+            <div class="bp-node bp-node--event">
+              <div class="bp-node-title">
+                Event TakeDamage
+                <span class="pin pin--exec pin--exec-b" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div class="bp-wire" aria-hidden="true"></div>
+
+            <div class="bp-node">
+              <div class="bp-node-title">
+                <span class="pin pin--exec pin--exec-t" aria-hidden="true"></span>
+                Set Health
+              </div>
+              <div class="bp-node-row">
+                <span class="pin pin--data" aria-hidden="true"></span>
+                Health
+                <span class="bp-node-value">Health - Damage</span>
+              </div>
+            </div>
+
+            <div class="bp-wire" aria-hidden="true"></div>
+
+            <div class="bp-node">
+              <div class="bp-node-title">
+                <span class="pin pin--exec pin--exec-t" aria-hidden="true"></span>
+                Branch
+              </div>
+              <div class="bp-node-row">
+                <span class="pin pin--data" aria-hidden="true"></span>
+                Condition
+                <span class="bp-node-value">Health &lt;= 0</span>
+              </div>
+              <span class="pin pin--exec pin--exec-r" aria-hidden="true"></span>
+            </div>
+
+            <div class="bp-wire" aria-hidden="true"><span class="bp-wire-tag">True</span></div>
+
+            <div class="bp-node">
+              <div class="bp-node-title">
+                <span class="pin pin--exec pin--exec-t" aria-hidden="true"></span>
+                Print String
+              </div>
+              <div class="bp-node-row">
+                <span class="pin pin--data" aria-hidden="true"></span>
+                In String
+                <span class="bp-node-value">"Guard down"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verse · enemy.verse -->
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-dot panel-dot--verse" aria-hidden="true"></span>
+          <p class="panel-title">
+            {t('demo.verse')} <span class="panel-sub">· {t('demo.verseSub')}</span>
+          </p>
+        </div>
+        <div class="panel-body">
+<pre class="code-block" tabindex="0" role="region" aria-label={t('a11y.code')}><code><span class="tk-kw">enemy</span> := <span class="tk-kw">class</span>:
+    <span class="tk-kw">var</span> Health : <span class="tk-type">int</span> = 100
+
+    TakeDamage(Amount : <span class="tk-type">int</span>) : <span class="tk-type">void</span> =
+        <span class="tk-kw">set</span> Health = Max(0, Health - Amount)
+        <span class="tk-kw">if</span> (Health = 0):
+            Print(<span class="tk-str">"Guard down"</span>)</code></pre>
+
+          <div class="console">
+            <p class="console-head">{t('demo.output')}</p>
+            <div class="console-body">
+              <div><span class="console-prompt">❯</span> enemy.TakeDamage(100)</div>
+              <div class="console-out">Guard down</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="demo-caption">{t('demo.caption')}</p>
+  </div>
+</section>

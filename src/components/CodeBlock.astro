@@ -1,15 +1,17 @@
 ---
-import { useTranslations, type Lang } from '../i18n/ui';
+import { useTranslations, defaultLang, type Lang } from '../i18n/ui';
 
 interface Props {
-  lang: Lang;
+  /** Idioma para el aria-label por defecto; por defecto, el de la página. */
+  lang?: Lang;
   /** Contenido del bloque (se renderiza como texto plano, sin set:html). */
   code: string;
   /** Etiqueta opcional mostrada como cabecera (p. ej. nombre de archivo). */
   label?: string;
 }
 
-const { lang, code, label } = Astro.props;
+const { code, label } = Astro.props;
+const lang = Astro.props.lang ?? ((Astro.currentLocale as Lang | undefined) ?? defaultLang);
 const t = useTranslations(lang);
 const ariaLabel = label ?? t('lesson.code');
 ---

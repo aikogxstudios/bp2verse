@@ -1,14 +1,16 @@
 ---
-import { useTranslations, type Lang } from '../i18n/ui';
+import { useTranslations, defaultLang, type Lang } from '../i18n/ui';
 
 interface Props {
-  lang: Lang;
+  /** Idioma para el título por defecto; por defecto, el de la página. */
+  lang?: Lang;
   variant: 'trap' | 'note' | 'warn';
   /** Título opcional; por defecto se usa el del variante según el idioma. */
   title?: string;
 }
 
-const { lang, variant, title } = Astro.props;
+const { variant, title } = Astro.props;
+const lang = Astro.props.lang ?? ((Astro.currentLocale as Lang | undefined) ?? defaultLang);
 const t = useTranslations(lang);
 const defaultTitles = {
   trap: 'lesson.callout.trap',

@@ -12,10 +12,15 @@ const es = {
   'meta.description':
     'Aprende Verse viniendo de Blueprints: lecciones lado a lado, un playground real en el navegador y un camino claro hacia Unreal Engine 6.',
 
+  'nav.demo': 'Demo',
   'nav.lessons': 'Temario',
   'nav.how': 'Cómo funciona',
   'nav.github': 'GitHub',
   'nav.lang': 'English',
+
+  'a11y.skip': 'Saltar al contenido',
+  'a11y.nav': 'Navegación principal',
+  'a11y.lang': 'Idioma',
 
   'hero.badge': 'UE6 elimina Blueprints · Early Access a finales de 2027',
   'hero.title': 'Lo que ya sabes de Blueprints, ahora en Verse.',
@@ -25,6 +30,7 @@ const es = {
   'hero.cta2': 'Ver el temario',
   'hero.note': 'Gratis · Sin cuenta · Sin instalar Unreal',
 
+  'demo.title': 'Demo en vivo',
   'demo.bp': 'Blueprint',
   'demo.bpSub': 'Event Graph',
   'demo.verse': 'Verse',
@@ -94,10 +100,15 @@ const en: typeof es = {
   'meta.description':
     'Learn Verse coming from Blueprints: side-by-side lessons, a real browser playground, and a clear path to Unreal Engine 6.',
 
+  'nav.demo': 'Demo',
   'nav.lessons': 'Curriculum',
   'nav.how': 'How it works',
   'nav.github': 'GitHub',
   'nav.lang': 'Español',
+
+  'a11y.skip': 'Skip to content',
+  'a11y.nav': 'Main navigation',
+  'a11y.lang': 'Language',
 
   'hero.badge': 'UE6 removes Blueprints · Early Access late 2027',
   'hero.title': 'What you already know in Blueprints, now in Verse.',
@@ -107,6 +118,7 @@ const en: typeof es = {
   'hero.cta2': 'See the curriculum',
   'hero.note': 'Free · No account · No Unreal install',
 
+  'demo.title': 'Live demo',
   'demo.bp': 'Blueprint',
   'demo.bpSub': 'Event Graph',
   'demo.verse': 'Verse',

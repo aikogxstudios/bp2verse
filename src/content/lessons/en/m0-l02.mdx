@@ -1,0 +1,100 @@
+---
+id: M0-L02
+lang: en
+module: "M0"
+order: 2
+title: "Your First Program"
+description: "How to use Print and brace string interpolation instead of Append and To String nodes."
+duration: "6 min"
+run: browser
+verifiedAt: "2026-11-19"
+sources:
+  - label: "Modify and Run Your First Verse Program (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/fortnite/modify-and-run-your-first-verse-program-in-unreal-editor-for-fortnite"
+  - label: "Debugging and Troubleshooting in Verse (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/uefn/debugging-and-troubleshooting-in-verse"
+  - label: "Book of Verse — Primitive Types"
+    url: "https://verselang.github.io/book/02_primitives/"
+  - label: "Basic Scripting with Blueprints (UE 5.8)"
+    url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/basic-scripting-with-blueprints-in-unreal-engine?application_version=5.8"
+---
+
+<Compare>
+<Fragment slot="bp">
+
+### What You Already Do in Blueprints
+
+To quickly inspect values in the **Event Graph**, you drop a **`Print String`** node. Whenever you need to combine text and numbers—say, a hero's name and score—you wire an **`Append`** (`String`) node with `A`, `B`, `C` pins and let Unreal auto-insert **`To String (Integer)`** conversion nodes on the way into **`In String`**.
+
+- **Blueprint pattern:** `Event BeginPlay` → `Append` (`"Total: "` + `To String (Integer)` from `BaseScore + Bonus`) → `Print String` (`In String`).
+- **Official node names (EN):** `Print String` (`In String`), `Append` (`String`), `To String (Integer)`, `Add` (`Integer + Integer`).
+
+</Fragment>
+<Fragment slot="verse">
+
+### The Verse Equivalent
+
+In Verse there is no `Append` node chain or conversion clutter: **you interpolate values and expressions directly inside quotes** using `{...}` and pass the resulting `string` to `Print("...")`.
+
+<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
+
+HeroName : string = "Kai"
+BaseScore : int = 50
+Bonus : int = 25
+
+Print("Hero: {HeroName}")
+Print("Base: {BaseScore}, Bonus: {Bonus}")
+Print("Total: {BaseScore + Bonus}")`} />
+
+**Exact output (`verse-js` 0.1.1):**
+
+```text
+Hero: Kai
+Base: 50, Bonus: 25
+Total: 75
+```
+
+</Fragment>
+</Compare>
+
+## Line-by-line annotation
+
+| Line | What it does | Blueprint equivalent |
+|---|---|---|
+| `1` | `using { /UnrealEngine.com/Temporary/Diagnostics }` imports `Print`. | Built-in access to the `Print String` node. |
+| `3` | `HeroName : string = "Kai"` defines an immutable `string`. | A `String` variable initialized to `"Kai"`. |
+| `4` | `BaseScore : int = 50` defines an immutable integer (`int`). | An `Integer` variable set to `50`. |
+| `5` | `Bonus : int = 25` defines another immutable integer (`int`). | An `Integer` variable set to `25`. |
+| `7` | `Print("Hero: {HeroName}")` replaces `{HeroName}` with `"Kai"` and prints the line. | `Append` (`"Hero: "`, `HeroName`) → `Print String`. |
+| `8` | `Print("Base: {BaseScore}, Bonus: {Bonus}")` embeds two integers in one string with no explicit converter nodes. | `Append` with 4 pins and two `To String (Integer)` nodes → `Print String`. |
+| `9` | `Print("Total: {BaseScore + Bonus}")` evaluates `50 + 25` inside `{...}` and prints `Total: 75`. | `Add (Integer)` → `To String (Integer)` → `Append` → `Print String`. |
+
+> **Simulator note (`run: browser`):** The `verse-js` playground lets you run `Print(...)` at the top level of a file for quick iteration. In **UEFN**, executable statements live inside a function such as `OnBegin` on your `creative_device` (M0-L01). Also, UEFN's `Print` accepts optional named arguments like `?Duration` and `?Color`, whereas `verse-js` only implements `Print("...")`.
+
+<Callout variant="trap" title="Migrant Trap">
+In Blueprints, dragging a green `Integer` pin onto `Print String`'s magenta `In String` pin silently creates a `To String` node; in Verse, **`Print(BaseScore)` fails to compile** (`Argument 1 expects string, got int`). Always wrap values in quotes with `{...}` (`Print("{BaseScore}")`), and in UEFN remember to include `using { /UnrealEngine.com/Temporary/Diagnostics }`.
+</Callout>
+
+## Micro-Exercise
+
+<Exercise
+  statement={"Declare two constants Stage : int = 2 and Coins : int = 15, then use a single Print call with {...} interpolation to output \"Stage 2 | Coins: 15 | Double: 30\"."}
+  hint={"You can write arithmetic directly inside braces, such as {Coins * 2}, all inside one double-quoted string."}
+>
+<Fragment slot="solution">
+
+<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
+
+Stage : int = 2
+Coins : int = 15
+
+Print("Stage {Stage} | Coins: {Coins} | Double: {Coins * 2}")`} />
+
+**Expected output (`verse-js` 0.1.1):**
+
+```text
+Stage 2 | Coins: 15 | Double: 30
+```
+
+</Fragment>
+</Exercise>

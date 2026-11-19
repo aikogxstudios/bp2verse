@@ -1,0 +1,112 @@
+---
+id: M0-L01
+lang: en
+module: "M0"
+order: 1
+title: "From Nodes to Text"
+description: "What changes when moving from Event Graph to Verse: events, pins, and functions."
+duration: "8 min"
+run: browser
+verifiedAt: "2026-11-19"
+sources:
+  - label: "Verse Language Reference (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/uefn/verse-language-reference"
+  - label: "Book of Verse"
+    url: "https://verselang.github.io/book/"
+  - label: "creative_device API (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/fortnite/verse-api/fortnitedotcom/devices/creative_device"
+  - label: "Functions in Verse (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/uefn/function-verse"
+  - label: "Specifiers and Attributes in Verse (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/uefn/specifiers-and-attributes-in-verse"
+  - label: "Event Graph in Unreal Engine (UE 5.8)"
+    url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/event-graph-in-unreal-engine?application_version=5.8"
+---
+
+<Compare>
+<Fragment slot="bp">
+
+### What You Already Do in Blueprints
+
+When you open the **Event Graph** of a **Blueprint Class** (for example, an `Actor`), you start from a red event node—such as **`Event BeginPlay`**—and drag a white wire from its **Execution Pin** (`exec`) to a **`Print String`** node, then into a custom function like **`GreetPlayer`** with a **`String`** data input pin.
+
+- **Blueprint pattern:** `Event BeginPlay` (`exec` out) → `Print String` (`In String`: `"BeginPlay -> OnBegin"`) → `Call Function: GreetPlayer` (`In Player Name`: `"Alex"`) → inside `GreetPlayer`, `Print String` (`In String`: `"Welcome, Alex!"`).
+- **Official node names (EN):** `Event BeginPlay`, `Execution Pin` (`exec`), `Print String`, `Custom Event` / `Function` (`Call Function`).
+
+</Fragment>
+<Fragment slot="verse">
+
+### The Verse Equivalent
+
+In Verse you do not wire nodes together: **an event is an overridden method**, **a white execution wire is one line following another** at the same indentation level, and **a data pin is a typed parameter** inside parentheses.
+
+<CodeBlock label="main.verse" code={`using { /Fortnite.com/Devices }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+hello_bridge_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        Print("BeginPlay -> OnBegin")
+        GreetPlayer("Alex")
+
+    GreetPlayer(PlayerName : string) : void =
+        Print("Welcome, {PlayerName}!")`} />
+
+**Exact output (`verse-js` 0.1.1):**
+
+```text
+BeginPlay -> OnBegin
+Welcome, Alex!
+```
+
+</Fragment>
+</Compare>
+
+## Line-by-line annotation
+
+| Line | What it does | Blueprint equivalent |
+|---|---|---|
+| `1` | `using { /Fortnite.com/Devices }` imports `creative_device`. | Picking the `Parent Class` when creating a Blueprint. |
+| `2` | `using { /UnrealEngine.com/Temporary/Diagnostics }` brings `Print` into scope in UEFN. | Built-in access to debug nodes (`Print String`). |
+| `4` | `hello_bridge_device := class(creative_device):` defines your device subclass. | Creating a `Blueprint Class` that inherits from a base class. |
+| `5` | `OnBegin<override>()<suspends> : void =` declares the entry point when the experience starts. | The `Event BeginPlay` node. |
+| `6` | `Print("BeginPlay -> OnBegin")` runs the first action inside the event. | First `Print String` wired to `Event BeginPlay`'s `exec` pin. |
+| `7` | `GreetPlayer("Alex")` calls your function and passes `"Alex"` as its argument. | White `exec` wire into `GreetPlayer` plus the `String` input pin. |
+| `9` | `GreetPlayer(PlayerName : string) : void =` defines the function with one input parameter and no return value (`void`). | A function under `My Blueprint → Functions` with a `String` input. |
+| `10` | `Print("Welcome, {PlayerName}!")` prints the greeting using the incoming parameter. | `Print String` inside the function graph wired to the input pin. |
+
+> **Simulator note (`run: browser`):** `verse-js` provides a `creative_device` shim that automatically runs `OnBegin`. In **UEFN**, you also compile your Verse code and place the resulting device in the level viewport for it to run during play. If you add `Sleep(...)` inside `<suspends>` (like a `Delay` node), you also need `using { /Verse.org/Simulation }`.
+
+<Callout variant="trap" title="Migrant Trap">
+In Blueprints, events sit ready on the graph and white wires decide what belongs to them; in Verse, `OnBegin` overrides a parent method and **requires `<override>` (in angle brackets, never `@override`)**, while **indentation acts as the execution wire**. Omit `<override>` and the compiler rejects it (`'OnBegin' overrides an inherited member and must be marked <override>`); misalign a line and it no longer belongs to that block.
+</Callout>
+
+## Micro-Exercise
+
+<Exercise
+  statement={"Starting from hello_bridge_device, add a second call to GreetPlayer inside OnBegin passing \"Sam\", and update GreetPlayer so it prints \"Player joined: {PlayerName}\"."}
+  hint={"Place GreetPlayer(\"Sam\") directly below GreetPlayer(\"Alex\") at the exact same indentation (8 spaces), then change the string inside Print(\"...\") on the last line."}
+>
+<Fragment slot="solution">
+
+<CodeBlock label="main.verse" code={`using { /Fortnite.com/Devices }
+using { /UnrealEngine.com/Temporary/Diagnostics }
+
+hello_bridge_device := class(creative_device):
+    OnBegin<override>()<suspends> : void =
+        Print("BeginPlay -> OnBegin")
+        GreetPlayer("Alex")
+        GreetPlayer("Sam")
+
+    GreetPlayer(PlayerName : string) : void =
+        Print("Player joined: {PlayerName}")`} />
+
+**Expected output (`verse-js` 0.1.1):**
+
+```text
+BeginPlay -> OnBegin
+Player joined: Alex
+Player joined: Sam
+```
+
+</Fragment>
+</Exercise>

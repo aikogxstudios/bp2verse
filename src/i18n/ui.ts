@@ -21,6 +21,8 @@ const es = {
   'a11y.skip': 'Saltar al contenido',
   'a11y.nav': 'Navegación principal',
   'a11y.lang': 'Idioma',
+  'a11y.code': 'Ejemplo de código Verse del archivo enemy.verse',
+  'a11y.graph': 'Grafo de Blueprint: Event TakeDamage resta Damage a Health y, si Health es menor o igual que 0, imprime "Guard down".',
 
   'hero.badge': 'UE6 elimina Blueprints · Early Access a finales de 2027',
   'hero.title': 'Lo que ya sabes de Blueprints, ahora en Verse.',
@@ -109,6 +111,8 @@ const en: typeof es = {
   'a11y.skip': 'Skip to content',
   'a11y.nav': 'Main navigation',
   'a11y.lang': 'Language',
+  'a11y.code': 'Verse code sample from the enemy.verse file',
+  'a11y.graph': 'Blueprint graph: Event TakeDamage subtracts Damage from Health and, if Health is less than or equal to 0, prints "Guard down".',
 
   'hero.badge': 'UE6 removes Blueprints · Early Access late 2027',
   'hero.title': 'What you already know in Blueprints, now in Verse.',

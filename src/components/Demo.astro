@@ -23,11 +23,11 @@ const t = useTranslations(lang);
           </p>
         </div>
         <div class="panel-body">
-          <div class="bp-graph">
+          <div class="bp-graph" role="img" aria-label={t('a11y.graph')}>
             <div class="bp-node bp-node--event">
               <div class="bp-node-title">
-                Event BeginPlay
-                <span class="pin pin--exec pin--exec-out" aria-hidden="true"></span>
+                Event TakeDamage
+                <span class="pin pin--exec pin--exec-b" aria-hidden="true"></span>
               </div>
             </div>
 
@@ -35,7 +35,36 @@ const t = useTranslations(lang);
 
             <div class="bp-node">
               <div class="bp-node-title">
-                <span class="pin pin--exec pin--exec-in" aria-hidden="true"></span>
+                <span class="pin pin--exec pin--exec-t" aria-hidden="true"></span>
+                Set Health
+              </div>
+              <div class="bp-node-row">
+                <span class="pin pin--data" aria-hidden="true"></span>
+                Health
+                <span class="bp-node-value">Health - Damage</span>
+              </div>
+            </div>
+
+            <div class="bp-wire" aria-hidden="true"></div>
+
+            <div class="bp-node">
+              <div class="bp-node-title">
+                <span class="pin pin--exec pin--exec-t" aria-hidden="true"></span>
+                Branch
+              </div>
+              <div class="bp-node-row">
+                <span class="pin pin--data" aria-hidden="true"></span>
+                Condition
+                <span class="bp-node-value">Health &lt;= 0</span>
+              </div>
+              <span class="pin pin--exec pin--exec-r" aria-hidden="true"></span>
+            </div>
+
+            <div class="bp-wire" aria-hidden="true"><span class="bp-wire-tag">True</span></div>
+
+            <div class="bp-node">
+              <div class="bp-node-title">
+                <span class="pin pin--exec pin--exec-t" aria-hidden="true"></span>
                 Print String
               </div>
               <div class="bp-node-row">
@@ -57,7 +86,7 @@ const t = useTranslations(lang);
           </p>
         </div>
         <div class="panel-body">
-<pre><code><span class="tk-kw">enemy</span> := <span class="tk-kw">class</span>:
+<pre class="code-block" tabindex="0" role="region" aria-label={t('a11y.code')}><code><span class="tk-kw">enemy</span> := <span class="tk-kw">class</span>:
     <span class="tk-kw">var</span> Health : <span class="tk-type">int</span> = 100
 
     TakeDamage(Amount : <span class="tk-type">int</span>) : <span class="tk-type">void</span> =

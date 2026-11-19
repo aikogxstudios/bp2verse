@@ -1,0 +1,614 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+import { EXAMPLES, DEFAULT_EXAMPLE_ID } from '../playground/examples';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const exampleLabel = (id: string): string => t(`pg.example.${id}` as Parameters<typeof t>[0]);
+const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EXAMPLES[0];
+---
+
+<section
+  id="playground"
+  class="pg"
+  aria-labelledby="pg-heading"
+  data-loading={t('pg.loading')}
+  data-runtime-error={t('pg.runtime.error')}
+  data-empty={t('pg.console.empty')}
+  data-none={t('pg.output.none')}
+>
+  <div class="container">
+    <header class="pg-head">
+      <h1 id="pg-heading">{t('pg.title')}</h1>
+      <p class="pg-sub">{t('pg.subtitle')}</p>
+      <p class="pg-disclaimer" role="note">
+        <span class="pg-disclaimer-icon" aria-hidden="true">⚠</span>
+        {t('pg.disclaimer')}
+      </p>
+    </header>
+
+    <div class="pg-grid">
+      <!-- Editor -->
+      <div class="panel pg-panel">
+        <div class="panel-head pg-panel-head">
+          <span class="panel-dot panel-dot--verse" aria-hidden="true"></span>
+          <p class="panel-title">Verse <span class="panel-sub">· main.verse</span></p>
+          <div class="pg-controls">
+            <label class="pg-label" for="pg-example">{t('pg.examples')}</label>
+            <select id="pg-example" class="pg-select">
+              {EXAMPLES.map((ex) => <option value={ex.id}>{exampleLabel(ex.id)}</option>)}
+            </select>
+            <button
+              type="button"
+              class="pg-btn pg-btn--run"
+              aria-keyshortcuts="Control+Enter Meta+Enter"
+            >
+              {t('pg.run')}
+              <span class="pg-kbd" aria-hidden="true">Ctrl ↵</span>
+            </button>
+            <button type="button" class="pg-btn pg-btn--reset">{t('pg.reset')}</button>
+          </div>
+        </div>
+        <div class="pg-editor-wrap">
+          <div class="pg-gutter" aria-hidden="true"></div>
+          <label class="visually-hidden" for="pg-editor">{t('pg.editor')}</label>
+          <textarea
+            id="pg-editor"
+            class="pg-editor"
+            spellcheck="false"
+            wrap="off"
+            autocomplete="off"
+            autocapitalize="off"
+            aria-autocomplete="none">{initialExample.code}</textarea>
+        </div>
+      </div>
+
+      <!-- Consola + errores -->
+      <div class="pg-side">
+        <div class="panel pg-panel pg-panel--console">
+          <div class="panel-head">
+            <span class="panel-dot panel-dot--bp" aria-hidden="true"></span>
+            <p class="panel-title">{t('pg.output')} <span class="panel-sub">· console</span></p>
+          </div>
+          <div class="pg-console" role="log" aria-live="polite" aria-atomic="false" aria-label={t('pg.output')}>
+            <p class="pg-note">{t('pg.console.empty')}</p>
+          </div>
+        </div>
+
+        <section class="pg-errors-zone" aria-labelledby="pg-errors-title" hidden>
+          <p class="pg-errors-title" id="pg-errors-title">{t('pg.error')}</p>
+          <ol class="pg-errors" aria-live="assertive"></ol>
+        </section>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { EXAMPLES, DEFAULT_EXAMPLE_ID, STORAGE_KEYS } from '../playground/examples';
+  import type { VerseHost } from 'verse-js';
+
+  const root = document.getElementById('playground');
+
+  if (root) {
+    const editor = root.querySelector<HTMLTextAreaElement>('.pg-editor');
+    const gutter = root.querySelector<HTMLElement>('.pg-gutter');
+    const select = root.querySelector<HTMLSelectElement>('.pg-select');
+    const runBtn = root.querySelector<HTMLButtonElement>('.pg-btn--run');
+    const resetBtn = root.querySelector<HTMLButtonElement>('.pg-btn--reset');
+    const consoleEl = root.querySelector<HTMLElement>('.pg-console');
+    const errorsZone = root.querySelector<HTMLElement>('.pg-errors-zone');
+    const errorsList = root.querySelector<HTMLElement>('.pg-errors');
+
+    if (editor && gutter && select && runBtn && resetBtn && consoleEl && errorsZone && errorsList) {
+      let hostPromise: Promise<VerseHost> | null = null;
+      let persistence: { clear(): void } | null = null;
+      let running = false;
+      let saveTimer: number | undefined;
+
+      const exampleById = new Map(EXAMPLES.map((ex) => [ex.id, ex]));
+
+      // --- estado inicial: último código guardado -------------------------
+      const readKey = (key: string): string | null => {
+        try {
+          return localStorage.getItem(key);
+        } catch {
+          return null;
+        }
+      };
+
+      const savedCode = readKey(STORAGE_KEYS.code);
+      const savedExample = readKey(STORAGE_KEYS.example);
+      if (savedCode !== null) editor.value = savedCode;
+      if (savedExample && exampleById.has(savedExample)) select.value = savedExample;
+
+      function persist(): void {
+        try {
+          localStorage.setItem(STORAGE_KEYS.code, editor.value);
+          localStorage.setItem(STORAGE_KEYS.example, select.value);
+        } catch {
+          /* almacenamiento no disponible: no pasa nada */
+        }
+      }
+
+      function schedulePersist(): void {
+        if (saveTimer !== undefined) window.clearTimeout(saveTimer);
+        saveTimer = window.setTimeout(persist, 400);
+      }
+
+      // --- gutter de líneas ------------------------------------------------
+      function updateGutter(): void {
+        const lines = editor.value.split('\n').length;
+        if (gutter.childElementCount !== lines) {
+          const frag = document.createDocumentFragment();
+          for (let i = 1; i <= lines; i++) {
+            const n = document.createElement('div');
+            n.textContent = String(i);
+            frag.append(n);
+          }
+          gutter.replaceChildren(frag);
+        }
+        gutter.scrollTop = editor.scrollTop;
+      }
+
+      editor.addEventListener('scroll', () => {
+        gutter.scrollTop = editor.scrollTop;
+      });
+
+      editor.addEventListener('input', () => {
+        updateGutter();
+        schedulePersist();
+      });
+
+      editor.addEventListener('keydown', (e) => {
+        // Tab inserta la indentación de 4 espacios que usa Verse.
+        if (e.key === 'Tab' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
+          editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end');
+          updateGutter();
+          schedulePersist();
+        }
+      });
+
+      root.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          e.preventDefault();
+          void run();
+        }
+      });
+
+      // --- consola y zona de errores --------------------------------------
+      function setNote(text: string): void {
+        consoleEl.replaceChildren();
+        const p = document.createElement('p');
+        p.className = 'pg-note';
+        p.textContent = text;
+        consoleEl.append(p);
+        consoleEl.setAttribute('aria-busy', 'true');
+      }
+
+      function clearErrors(): void {
+        errorsList.replaceChildren();
+        errorsZone.hidden = true;
+      }
+
+      function showRuntimeError(detail?: string): void {
+        const msg = root.dataset.runtimeError ?? 'The Verse runtime failed to load.';
+        clearErrors();
+        const li = document.createElement('li');
+        li.className = 'pg-err';
+        li.textContent = detail ? `${msg} (${detail})` : msg;
+        errorsList.append(li);
+        errorsZone.hidden = false;
+        setNote(msg);
+        consoleEl.removeAttribute('aria-busy');
+      }
+
+      // --- runtime verse-js (carga perezosa) -------------------------------
+      function ensureHost(): Promise<VerseHost> {
+        if (!hostPromise) {
+          hostPromise = (async () => {
+            const [{ createHost }, { uefnModules }, { LocalStorageAdapter }] = await Promise.all([
+              import('verse-js'),
+              import('verse-js/extras/uefn'),
+              import('verse-js/adapters'),
+            ]);
+            const adapter = new LocalStorageAdapter();
+            persistence = adapter;
+            return createHost({ modules: uefnModules, persistence: adapter });
+          })();
+          hostPromise.catch(() => {
+            hostPromise = null;
+          });
+        }
+        return hostPromise;
+      }
+
+      async function run(): Promise<void> {
+        if (running) return;
+        running = true;
+        runBtn.disabled = true;
+        persist();
+        clearErrors();
+        setNote(root.dataset.loading ?? '');
+        try {
+          const host = await ensureHost();
+          const result = await host.execute(editor.value);
+
+          consoleEl.replaceChildren();
+          if (result.output.length === 0) {
+            const p = document.createElement('p');
+            p.className = 'pg-note';
+            p.textContent = root.dataset.none ?? '';
+            consoleEl.append(p);
+          } else {
+            for (const line of result.output) {
+              const div = document.createElement('div');
+              div.className = 'pg-line';
+              div.textContent = line;
+              consoleEl.append(div);
+            }
+          }
+
+          // Errores y diagnósticos (con línea/columna si están disponibles).
+          const diagErrors = result.diagnostics.filter((d) => d.severity === 'error');
+          const warnings = result.diagnostics.filter((d) => d.severity === 'warning');
+          const diagMessages = new Set(diagErrors.map((d) => d.message));
+          const extraErrors = result.errors.filter((msg) => !diagMessages.has(msg));
+
+          if (diagErrors.length + extraErrors.length + warnings.length > 0) {
+            const frag = document.createDocumentFragment();
+            const add = (text: string, cls: string): void => {
+              const li = document.createElement('li');
+              li.className = cls;
+              li.textContent = text;
+              frag.append(li);
+            };
+            for (const d of [...diagErrors, ...warnings]) {
+              const where = d.startLine > 0 ? `[${d.startLine}:${d.startColumn}] ` : '';
+              add(`${where}${d.message}`, d.severity === 'error' ? 'pg-err' : 'pg-warn');
+            }
+            for (const msg of extraErrors) add(msg, 'pg-err');
+            errorsList.replaceChildren(frag);
+            errorsZone.hidden = false;
+          }
+
+          consoleEl.removeAttribute('aria-busy');
+        } catch (err) {
+          showRuntimeError(err instanceof Error ? err.message : String(err));
+        } finally {
+          running = false;
+          runBtn.disabled = false;
+        }
+      }
+
+      function reset(): void {
+        const example = exampleById.get(select.value) ?? exampleById.get(DEFAULT_EXAMPLE_ID);
+        editor.value = example ? example.code : '';
+        updateGutter();
+        clearErrors();
+        setNote(root.dataset.empty ?? '');
+        consoleEl.removeAttribute('aria-busy');
+        try {
+          localStorage.removeItem(STORAGE_KEYS.code);
+          localStorage.removeItem(STORAGE_KEYS.example);
+        } catch {
+          /* ignore */
+        }
+        persistence?.clear();
+        persist();
+        editor.focus();
+      }
+
+      select.addEventListener('change', () => {
+        const example = exampleById.get(select.value);
+        if (example) {
+          editor.value = example.code;
+          updateGutter();
+          persist();
+          editor.focus();
+        }
+      });
+
+      runBtn.addEventListener('click', () => void run());
+      resetBtn.addEventListener('click', reset);
+
+      updateGutter();
+    }
+  }
+</script>
+
+<style>
+  .pg {
+    padding-block: clamp(40px, 7vw, 72px);
+  }
+
+  .pg-head {
+    max-width: 720px;
+    margin-bottom: clamp(24px, 4vw, 36px);
+  }
+
+  .pg-head h1 {
+    font-size: clamp(1.6rem, 2.5vw + 0.8rem, 2.4rem);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .pg-sub {
+    margin-top: 12px;
+    color: var(--muted);
+  }
+
+  .pg-disclaimer {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 12px 16px;
+    border: 1px solid color-mix(in srgb, var(--bp) 45%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--bp) 9%, transparent);
+    font-size: 0.9rem;
+  }
+
+  .pg-disclaimer-icon {
+    color: var(--bp);
+    flex: none;
+  }
+
+  /* ---------- Layout ---------- */
+
+  .pg-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 20px;
+    align-items: stretch;
+  }
+
+  .pg-side {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .pg-panel {
+    min-width: 0;
+  }
+
+  .pg-panel--console {
+    flex: 1;
+  }
+
+  .pg-panel-head {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .pg-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ---------- Controles ---------- */
+
+  .pg-controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .pg-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .pg-select {
+    max-width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .pg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-family: var(--font-sans);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 120ms ease, border-color 120ms ease, opacity 120ms ease;
+  }
+
+  .pg-btn--run {
+    background: var(--verse);
+    color: #04161d;
+  }
+
+  .pg-btn--run:hover {
+    background: #6ee2ff;
+  }
+
+  .pg-btn--run:disabled {
+    opacity: 0.55;
+    cursor: progress;
+  }
+
+  .pg-btn--reset {
+    background: transparent;
+    border-color: var(--line);
+    color: var(--bp);
+  }
+
+  .pg-btn--reset:hover {
+    border-color: var(--bp);
+  }
+
+  .pg-kbd {
+    padding: 3px 6px;
+    border: 1px solid rgba(4, 22, 29, 0.35);
+    border-radius: 5px;
+    background: rgba(4, 22, 29, 0.18);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
+  @media (max-width: 640px) {
+    .pg-kbd {
+      display: none;
+    }
+
+    .pg-controls {
+      width: 100%;
+    }
+
+    .pg-select {
+      flex: 1;
+    }
+  }
+
+  /* ---------- Editor ---------- */
+
+  .pg-editor-wrap {
+    display: flex;
+    flex: 1;
+    min-height: clamp(280px, 45vh, 460px);
+    background: var(--bg);
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden;
+  }
+
+  .pg-gutter {
+    flex: none;
+    width: 3.5ch;
+    padding: 16px 0 24px;
+    padding-right: 8px;
+    border-right: 1px solid var(--line);
+    overflow: hidden;
+    text-align: right;
+    color: color-mix(in srgb, var(--muted) 80%, transparent);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    user-select: none;
+  }
+
+  .pg-editor {
+    flex: 1;
+    width: 100%;
+    padding: 16px;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    white-space: pre;
+    overflow: auto;
+    resize: none;
+    tab-size: 4;
+  }
+
+  .pg-editor:focus-visible {
+    outline-offset: -2px;
+  }
+
+  @media (max-width: 480px) {
+    .pg-editor-wrap {
+      min-height: 300px;
+    }
+
+    .pg-gutter,
+    .pg-editor {
+      font-size: 0.78rem;
+    }
+  }
+
+  /* ---------- Consola ---------- */
+
+  .pg-console {
+    flex: 1;
+    min-height: clamp(240px, 40vh, 420px);
+    max-height: 560px;
+    padding: 14px 16px;
+    overflow: auto;
+    background: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+
+  .pg-line {
+    color: var(--verse);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .pg-line::before {
+    content: '» ';
+    color: var(--bp);
+    user-select: none;
+  }
+
+  .pg-note {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ---------- Zona de errores ---------- */
+
+  .pg-errors-zone {
+    border: 1px solid color-mix(in srgb, #ff6b6b 45%, transparent);
+    border-radius: 10px;
+    background: color-mix(in srgb, #ff6b6b 8%, transparent);
+    overflow: hidden;
+  }
+
+  .pg-errors-title {
+    padding: 8px 14px;
+    border-bottom: 1px solid color-mix(in srgb, #ff6b6b 30%, transparent);
+    color: #ff9c9c;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .pg-errors {
+    margin: 0;
+    padding: 10px 14px;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .pg-err {
+    color: #ffb4b4;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .pg-warn {
+    color: var(--bp);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+</style>

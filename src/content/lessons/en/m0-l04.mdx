@@ -1,0 +1,144 @@
+---
+id: M0-L04
+lang: en
+module: M0
+order: 4
+title: 'A Real Pattern: Damage and Death'
+description: 'The classic Blueprint enemy pattern (Health, TakeDamage, and Branch) translated to Verse: class, var, Max(0, ...), and an if that prints "Guard down".'
+duration: '10 min'
+run: browser
+sources:
+  - label: 'Anatomy of a Blueprint — Unreal Engine 5.8'
+    url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/anatomy-of-a-blueprint-in-unreal-engine?application_version=5.8'
+  - label: 'Flow Control in Unreal Engine'
+    url: 'https://dev.epicgames.com/documentation/en-us/unreal-engine/flow-control-in-unreal-engine?application_version=5.8'
+  - label: 'Verse Language Reference (UEFN)'
+    url: 'https://dev.epicgames.com/documentation/en-us/uefn/verse-language-reference'
+  - label: 'Failure and Control Flow in Verse'
+    url: 'https://dev.epicgames.com/documentation/en-us/uefn/basics-of-writing-code-9-failure-and-control-flow-in-verse'
+  - label: 'Book of Verse — Classes & Interfaces'
+    url: 'https://verselang.github.io/book/10_classes_interfaces/'
+verifiedAt: '2026-11-19'
+---
+
+import CodeBlock from '../../../components/CodeBlock.astro';
+import Callout from '../../../components/Callout.astro';
+import Compare from '../../../components/Compare.astro';
+import Exercise from '../../../components/Exercise.astro';
+import {
+  m0l04Main,
+  m0l04Solution,
+  m0l04SolutionOutput,
+} from '../../../lib/snippets';
+
+## What You Already Do in Blueprints
+
+This is the classic Unreal enemy pattern (and the exact example from the
+`bp2verse` landing demo): you create a **`Blueprint Class`** with a **`Health`**
+(`Integer`, default `100`) variable and a **`TakeDamage`** **`Custom Event`** or
+**`Function`** taking an **`Amount`** (`Integer`) input. On execution, it
+computes `Max(0, Health - Amount)` so health never goes negative, updates it
+with **`Set Health`**, and runs a **`Branch`** (`Health <= 0` or
+`Health == 0`) whose **`True`** pin triggers **`Print String`** with
+`"Guard down"`.
+
+- **Blueprint pattern:** `Blueprint Class` (`Health = 100`) →
+  `Event TakeDamage` (`Amount`) → `Set Health` (`Max (Integer)` of `0` and
+  `Health - Amount`) → `Branch` (`Equal (Integer)` `Health == 0`) → `True` →
+  `Print String` (`"Guard down"`).
+- **Official node names (EN):** `Blueprint Class`, `Custom Event` / `Function`,
+  `Set` (`Health`), `Subtract` (`Integer - Integer`), `Max (Integer)`,
+  `Equal (Integer)`, `Branch`, `Print String`.
+
+The same logic, told twice: the node chain and its Verse shape.
+
+<Compare>
+  <div slot="bp">
+    <ul>
+      <li><strong>Blueprint Class</strong> with a <code>Health</code> variable (<code>Integer</code>, <code>100</code>)</li>
+      <li><strong>Event TakeDamage</strong> with an <code>Amount</code> input (<code>Integer</code>)</li>
+      <li><strong>Set Health</strong> ← <code>Max (Integer)</code> of <code>0</code> and <code>Health - Amount</code></li>
+      <li><strong>Branch</strong> ← <code>Equal (Integer)</code>: <code>Health == 0</code></li>
+      <li><strong>True</strong> pin → <strong>Print String</strong> <code>"Guard down"</code></li>
+    </ul>
+  </div>
+  <div slot="verse">
+    <ul>
+      <li><code>enemy := class:</code> — the reusable class</li>
+      <li><code>var Health : int = 100</code> — the mutable state</li>
+      <li><code>TakeDamage(Amount : int) : void</code> — the damage-taking method</li>
+      <li><code>Max(0, Health - Amount)</code> — the clamp, no nodes needed</li>
+      <li><code>if (Health = 0):</code> — the Branch (a single <code>=</code>)</li>
+      <li><code>Print("Guard down")</code> — the output</li>
+    </ul>
+  </div>
+</Compare>
+
+## The Verse Equivalent
+
+Here everything from Module 0 comes together in one working unit: a
+**`class`**, a mutable `var Health` field, a `TakeDamage` method, the standard
+`Max` function, an `if` acting as `Branch`, and archetype instantiation
+`enemy{}`.
+
+<CodeBlock lang="en" label="enemy.verse" code={m0l04Main} />
+
+**Exact output (`verse-js` 0.1.1):**
+
+```text
+Guard down
+```
+
+**Line-by-line annotation:**
+
+| Line | What it does                                                                                   | Blueprint equivalent                                                              |
+| ---- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| `1`  | `using { /UnrealEngine.com/Temporary/Diagnostics }` imports `Print`.                            | Built-in access to `Print String`.                                                |
+| `3`  | `enemy := class:` defines a reusable class named `enemy`.                                       | Creating a new `Blueprint Class`.                                                 |
+| `4`  | `var Health : int = 100` declares the mutable `Health` field initialized to `100`.              | `Health` (`Integer`) variable in *My Blueprint* with Default Value `100`.          |
+| `6`  | `TakeDamage(Amount : int) : void =` defines the method taking damage as an `int`.               | `Custom Event` or `Function` `TakeDamage` with an `Amount` (`Integer`) input pin.  |
+| `7`  | `set Health = Max(0, Health - Amount)` subtracts `Amount` and clamps the floor at `0`.          | `Set Health` fed by `Max(0, Health - Amount)`.                                     |
+| `8`  | `if (Health = 0):` checks whether health has hit zero.                                          | `Branch` wired from `Equal (Integer)` (`Health == 0`).                             |
+| `9`  | `Print("Guard down")` runs only when `Health` reaches `0`.                                      | `Print String` (`"Guard down"`) wired to the `True` pin.                           |
+| `11` | `E := enemy{}` creates an instance in memory using archetype `{}` syntax.                       | Spawning or placing the Blueprint instance.                                        |
+| `12` | `E.TakeDamage(30)` drops `Health` from `100` to `70`; `if (Health = 0)` fails, printing nothing. | First `TakeDamage(30)` call (takes the `False` branch).                            |
+| `13` | `E.TakeDamage(90)` sets `Max(0, 70 - 90)` to `0`; `Health = 0` succeeds and prints.             | Second `TakeDamage(90)` call (takes the `True` branch).                            |
+
+<Callout lang="en" variant="note" title="Simulator note (run: browser)">
+  This snippet is marked as `run: browser`: it ran in the `verse-js` 0.1.1
+  simulator on 2026-11-19 and produced exactly the output shown above. It is
+  not Epic's compiler (ADR-005).
+</Callout>
+
+<Callout lang="en" variant="trap">
+  Two habits break this snippet immediately: first, **`guard` is a reserved
+  keyword** in Verse, so `guard := class:` fails to parse
+  (`Syntax error: Unexpected ':='`; name the class `enemy`, while
+  `"Guard down"` inside quotes is fine). Second, inside `if`, equality uses a
+  **single `=`** (`if (Health = 0):`), never `==`
+  (`Syntax error: Unexpected '='`).
+</Callout>
+
+<Exercise lang="en">
+  **Prompt:** Extend `enemy` with a constant `MaxHealth : int = 100` and a
+  `Heal(Amount : int) : void` method that adds `Amount` to `Health` without
+  exceeding `MaxHealth` using `Min(MaxHealth, Health + Amount)`, then prints
+  `"Enemy HP: {Health}"`. Instantiate `E := enemy{}` and call in order:
+  `E.TakeDamage(60)`, `E.Heal(25)`, and `E.TakeDamage(70)`.
+
+  <div slot="hint">
+    Place <code>Heal(Amount : int) : void =</code> at the same indentation as{' '}
+    <code>TakeDamage</code> (4 spaces), and indent{' '}
+    <code>set Health = Min(MaxHealth, Health + Amount)</code> and{' '}
+    <code>Print("Enemy HP: {'{Health}'}")</code> underneath (8 spaces).
+  </div>
+
+  <CodeBlock slot="solution" lang="en" label="solution.verse" code={m0l04Solution} />
+
+  <CodeBlock
+    slot="solution"
+    lang="en"
+    label="Expected output (verse-js 0.1.1)"
+    code={m0l04SolutionOutput}
+  />
+</Exercise>

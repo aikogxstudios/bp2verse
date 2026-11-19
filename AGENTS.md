@@ -26,4 +26,11 @@ Reglas para agentes que trabajen en este repositorio.
 
 ## Comandos
 
-_(pendiente de definir cuando se elija el stack)_
+Requiere Node 22+.
+
+```bash
+npm install     # instalar dependencias
+npm run dev     # servidor de desarrollo
+npm run build   # build estático a dist/
+npm run preview # previsualizar el build
+```

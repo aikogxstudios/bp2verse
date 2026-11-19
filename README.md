@@ -4,7 +4,7 @@
 
 Web pública y abierta que enseña **Verse** (el lenguaje de Epic Games para Unreal Engine 6) a desarrolladores que ya piensan en **Blueprints**. La idea es simple: no aprender un lenguaje nuevo desde cero, sino **traducir** lo que ya sabes —eventos, nodos, variables, casts, interfaces— a su equivalente en Verse, con ejemplos lado a lado y un playground para probar.
 
-> Estado: **planificación**. La documentación de investigación vive en `docs/research/` y el plan en `docs/PLAN.md`.
+> Estado: **v0.1 — landing bilingüe + mapa BP→Verse; playground en curso**. La documentación de investigación vive en `docs/research/` y el plan en `docs/PLAN.md`.
 
 ## Para quién
 
@@ -23,12 +23,31 @@ Web pública y abierta que enseña **Verse** (el lenguaje de Epic Games para Unr
 
 ```
 bp2verse/
-├── src/                # Código fuente de la web
+├── src/
+│   ├── components/     # Componentes Astro (Header, Footer, Demo)
+│   ├── layouts/        # BaseLayout.astro
+│   ├── pages/          # / (español) y /en/ (inglés)
+│   ├── i18n/           # Textos es/en y helpers de rutas
+│   └── styles/         # CSS global, sin frameworks
+├── public/             # Estáticos servidos tal cual (favicon…)
 ├── assets/             # Imágenes, fuentes y estáticos
 ├── docs/               # Plan, arquitectura y decisiones
+│   ├── reference/      # Material de referencia (mapa BP→Verse)
 │   └── research/       # Investigación con fuentes oficiales
+├── astro.config.mjs    # Config de Astro y enrutado i18n
 ├── README.md
 └── AGENTS.md           # Reglas para agentes que trabajen en el repo
+```
+
+## Desarrollo
+
+Requiere Node 22+.
+
+```bash
+npm install     # instalar dependencias
+npm run dev     # servidor de desarrollo
+npm run build   # build estático a dist/
+npm run preview # previsualizar el build
 ```
 
 ## Principios

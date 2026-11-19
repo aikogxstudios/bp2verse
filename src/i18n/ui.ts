@@ -108,11 +108,13 @@ const es = {
   'pg.reset': 'Reiniciar',
   'pg.editor': 'Editor de código Verse',
   'pg.output': 'Salida',
+  'pg.console.tag': 'consola',
   'pg.error': 'Errores',
   'pg.output.none': '(sin salida)',
   'pg.loading': 'Cargando el runtime de Verse…',
   'pg.runtime.error':
     'No se pudo cargar el runtime de Verse (verse-js). Comprueba tu conexión y vuelve a intentarlo.',
+  'pg.run.timeout': 'Ejecución detenida tras 5 s (posible bucle infinito).',
   'pg.console.empty': 'Ejecuta el programa para ver la salida aquí.',
 
   'footer.tagline': 'De Blueprints a Verse, sin empezar de cero.',
@@ -222,11 +224,13 @@ const en: typeof es = {
   'pg.reset': 'Reset',
   'pg.editor': 'Verse code editor',
   'pg.output': 'Output',
+  'pg.console.tag': 'console',
   'pg.error': 'Errors',
   'pg.output.none': '(no output)',
   'pg.loading': 'Loading the Verse runtime…',
   'pg.runtime.error':
     'The Verse runtime (verse-js) could not be loaded. Check your connection and try again.',
+  'pg.run.timeout': 'Execution stopped after 5 s (possible infinite loop).',
   'pg.console.empty': 'Run the program to see its output here.',
 
   'footer.tagline': 'From Blueprints to Verse, without starting over.',

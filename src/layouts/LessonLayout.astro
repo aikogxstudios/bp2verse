@@ -1,0 +1,100 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from './BaseLayout.astro';
+import { useTranslations } from '../i18n/ui';
+import { localizedPath } from '../i18n/utils';
+import { slugFromEntry } from '../lib/lessons';
+
+interface Props {
+  entry: CollectionEntry<'lessons'>;
+  /** Lección anterior dentro del mismo módulo (si existe). */
+  prev: CollectionEntry<'lessons'> | null;
+  /** Lección siguiente dentro del mismo módulo (si existe). */
+  next: CollectionEntry<'lessons'> | null;
+}
+
+const { entry, prev, next } = Astro.props;
+const { id, lang, module, title, description, duration, run, sources, verifiedAt } =
+  entry.data;
+const t = useTranslations(lang);
+
+/** Ruta canónica (ES, sin idioma); localizedPath traduce el segmento a /lessons en EN. */
+const canonicalPath = `/lecciones/${slugFromEntry(entry)}`;
+const lessonHref = (lesson: CollectionEntry<'lessons'>) =>
+  localizedPath(lang, `/lecciones/${slugFromEntry(lesson)}`);
+
+const moduleNumber = module.replace(/^M/i, '');
+const prevHref = prev ? lessonHref(prev) : null;
+const nextHref = next ? lessonHref(next) : null;
+---
+
+<BaseLayout lang={lang} title={title} description={description} path={canonicalPath}>
+  <article class="lesson">
+    <div class="container lesson-container">
+      <nav class="breadcrumb" aria-label={t('a11y.breadcrumb')}>
+        <ol>
+          <li>
+            <a href={localizedPath(lang, '/lecciones')}>{t('lesson.crumb.lessons')}</a>
+          </li>
+          <li aria-current="true">{t('lesson.module')} {moduleNumber}</li>
+        </ol>
+      </nav>
+
+      <header class="lesson-head">
+        <p class="lesson-kicker">{id}</p>
+        <h1>{title}</h1>
+        <p class="lesson-meta">
+          <span class="lesson-meta-item">
+            {t('lesson.duration')}: {duration}
+          </span>
+          <span class:list={['badge', `badge--${run}`]}>{t(`lesson.run.${run}`)}</span>
+          <span class="lesson-meta-item">
+            {t('lesson.verified')}: <time datetime={verifiedAt}>{verifiedAt}</time>
+          </span>
+        </p>
+      </header>
+
+      <div class="prose">
+        <slot />
+      </div>
+
+      <section class="lesson-sources" aria-labelledby="lesson-sources-title">
+        <h2 id="lesson-sources-title">{t('lesson.sources')}</h2>
+        <ul>
+          {
+            sources.map((source) => (
+              <li>
+                <a href={source.url} target="_blank" rel="noopener noreferrer">
+                  {source.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      {
+        (prevHref || nextHref) && (
+          <nav class="lesson-nav" aria-label={t('a11y.lesson.nav')}>
+            {prevHref ? (
+              <a class="lesson-nav-link lesson-nav-link--prev" href={prevHref}>
+                <span class="lesson-nav-dir">← {t('lesson.prev')}</span>
+                <span class="lesson-nav-title">{prev?.data.title}</span>
+              </a>
+            ) : (
+              <span class="lesson-nav-spacer" aria-hidden="true" />
+            )}
+            {nextHref ? (
+              <a class="lesson-nav-link lesson-nav-link--next" href={nextHref}>
+                <span class="lesson-nav-dir">{t('lesson.next')} →</span>
+                <span class="lesson-nav-title">{next?.data.title}</span>
+              </a>
+            ) : (
+              <span class="lesson-nav-spacer" aria-hidden="true" />
+            )}
+          </nav>
+        )
+      }
+    </div>
+  </article>
+</BaseLayout>

@@ -12,6 +12,7 @@ const es = {
   'meta.description':
     'Aprende Verse viniendo de Blueprints: lecciones lado a lado, un playground real en el navegador y un camino claro hacia Unreal Engine 6.',
 
+  'nav.playground': 'Playground',
   'nav.demo': 'Demo',
   'nav.lessons': 'Temario',
   'nav.how': 'Cómo funciona',
@@ -91,6 +92,29 @@ const es = {
     'Epic no ha publicado un compilador de Verse fuera de Unreal. El playground usa un runtime libre que implementa el núcleo del lenguaje y lo marca claramente. Para ejecutar Verse real hoy: UEFN.',
   'honest.link': 'Leer por qué',
 
+  'pg.meta.title': 'Playground de Verse — bp2verse',
+  'pg.meta.description':
+    'Escribe y ejecuta Verse en tu navegador: un simulador del núcleo del lenguaje con ejemplos listos para correr.',
+  'pg.title': 'Playground de Verse',
+  'pg.subtitle':
+    'Escribe Verse y ejecútalo aquí mismo. Un simulador del núcleo del lenguaje: expresiones, clases, fallo transaccional y opcionalidad.',
+  'pg.disclaimer':
+    'Simulador de un subconjunto de Verse. No es el compilador de Epic. Para Verse real: UEFN.',
+  'pg.examples': 'Ejemplos',
+  'pg.example.hello': 'Hola Mundo',
+  'pg.example.class': 'Clase con estado',
+  'pg.example.decides': 'Fallo y <decides>',
+  'pg.run': 'Ejecutar',
+  'pg.reset': 'Reset',
+  'pg.editor': 'Editor de código Verse',
+  'pg.output': 'Salida',
+  'pg.error': 'Errores',
+  'pg.output.none': '(sin salida)',
+  'pg.loading': 'Cargando el runtime de Verse…',
+  'pg.runtime.error':
+    'No se pudo cargar el runtime de Verse (verse-js). Comprueba tu conexión y vuelve a intentarlo.',
+  'pg.console.empty': 'Ejecuta el programa para ver la salida aquí.',
+
   'footer.tagline': 'De Blueprints a Verse, sin empezar de cero.',
   'footer.disclaimer':
     'Proyecto no afiliado a Epic Games. Verse, Unreal Engine y Blueprints son marcas de Epic Games, Inc.',
@@ -102,6 +126,7 @@ const en: typeof es = {
   'meta.description':
     'Learn Verse coming from Blueprints: side-by-side lessons, a real browser playground, and a clear path to Unreal Engine 6.',
 
+  'nav.playground': 'Playground',
   'nav.demo': 'Demo',
   'nav.lessons': 'Curriculum',
   'nav.how': 'How it works',
@@ -180,6 +205,29 @@ const en: typeof es = {
   'honest.body':
     'Epic has not released a Verse compiler outside Unreal. The playground uses a free runtime that implements the core language, and says so clearly. To run real Verse today: UEFN.',
   'honest.link': 'Read why',
+
+  'pg.meta.title': 'Verse Playground — bp2verse',
+  'pg.meta.description':
+    'Write and run Verse in your browser: a simulator of the language core with ready-to-run examples.',
+  'pg.title': 'Verse Playground',
+  'pg.subtitle':
+    'Write Verse and run it right here. A simulator of the language core: expressions, classes, transactional failure and optionality.',
+  'pg.disclaimer':
+    'Simulator of a subset of Verse. Not Epic’s compiler. For real Verse: UEFN.',
+  'pg.examples': 'Examples',
+  'pg.example.hello': 'Hello World',
+  'pg.example.class': 'Class with state',
+  'pg.example.decides': 'Failure and <decides>',
+  'pg.run': 'Run',
+  'pg.reset': 'Reset',
+  'pg.editor': 'Verse code editor',
+  'pg.output': 'Output',
+  'pg.error': 'Errors',
+  'pg.output.none': '(no output)',
+  'pg.loading': 'Loading the Verse runtime…',
+  'pg.runtime.error':
+    'The Verse runtime (verse-js) could not be loaded. Check your connection and try again.',
+  'pg.console.empty': 'Run the program to see its output here.',
 
   'footer.tagline': 'From Blueprints to Verse, without starting over.',
   'footer.disclaimer':

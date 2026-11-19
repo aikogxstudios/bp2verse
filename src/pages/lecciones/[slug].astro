@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from 'astro:content';
+import LessonLayout from '../../layouts/LessonLayout.astro';
+import { slugFromEntry, sortLessons } from '../../lib/lessons';
+
+export async function getStaticPaths() {
+  const lessons = sortLessons(
+    await getCollection('lessons', ({ data }) => data.lang === 'es'),
+  );
+  return lessons.map((entry, index) => ({
+    params: { slug: slugFromEntry(entry) },
+    props: {
+      entry,
+      prev: lessons[index - 1] ?? null,
+      next: lessons[index + 1] ?? null,
+    },
+  }));
+}
+
+const { entry, prev, next } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<LessonLayout entry={entry} prev={prev} next={next}>
+  <Content />
+</LessonLayout>

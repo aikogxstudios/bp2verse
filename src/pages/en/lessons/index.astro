@@ -1,0 +1,55 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { useTranslations } from '../../../i18n/ui';
+import { localizedPath } from '../../../i18n/utils';
+import { slugFromEntry, sortLessons } from '../../../lib/lessons';
+
+const lessons = sortLessons(
+  await getCollection('lessons', ({ data }) => data.lang === 'en'),
+);
+const t = useTranslations('en');
+---
+
+<BaseLayout
+  lang="en"
+  title={t('lessons.meta.title')}
+  description={t('lessons.meta.description')}
+  path="/lecciones"
+>
+  <section class="lessons-index">
+    <div class="container">
+      <header class="lessons-index-head">
+        <h1>{t('lessons.index.title')}</h1>
+        <p>{t('lessons.index.subtitle')}</p>
+      </header>
+
+      {
+        lessons.length === 0 ? (
+          <p class="lessons-empty">{t('lessons.empty')}</p>
+        ) : (
+          <ol class="lesson-cards">
+            {lessons.map((lesson) => (
+              <li>
+                <a
+                  class="lesson-card"
+                  href={localizedPath('en', `/lecciones/${slugFromEntry(lesson)}`)}
+                >
+                  <p class="lesson-card-kicker">{lesson.data.id}</p>
+                  <h2>{lesson.data.title}</h2>
+                  <p class="lesson-card-desc">{lesson.data.description}</p>
+                  <p class="lesson-card-meta">
+                    <span>{lesson.data.duration}</span>
+                    <span class:list={['badge', `badge--${lesson.data.run}`]}>
+                      {t(`lesson.run.${lesson.data.run}`)}
+                    </span>
+                  </p>
+                </a>
+              </li>
+            ))}
+          </ol>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

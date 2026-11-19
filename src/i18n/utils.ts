@@ -25,14 +25,54 @@ export function getLangFromUrl(url: URL): Lang {
   return defaultLang;
 }
 
-export function localizedPath(lang: Lang, path = '/'): string {
-  const clean = path.startsWith('/') ? path : `/${path}`;
-  const localized =
-    lang === defaultLang ? clean : clean === '/' ? `/${lang}/` : `/${lang}${clean}`;
-  return withBase(localized);
+/**
+ * Segmentos de ruta que se traducen por idioma. La clave es la ruta canónica
+ * (ES, sin prefijo) y afecta también a sus rutas hijas (p. ej. `/lecciones/m0-l04`).
+ */
+const routeAliases: Record<string, Record<Lang, string>> = {
+  '/lecciones': { es: '/lecciones', en: '/lessons' },
+};
+
+/** Traduce el primer segmento de una ruta canónica al idioma dado. */
+function translateRoute(path: string, lang: Lang): string {
+  for (const [canonical, aliases] of Object.entries(routeAliases)) {
+    if (path === canonical || path.startsWith(`${canonical}/`)) {
+      return aliases[lang] + path.slice(canonical.length);
+    }
+  }
+  return path;
 }
 
+export function localizedPath(lang: Lang, path = '/'): string {
+  const clean = path.startsWith('/') ? path : `/${path}`;
+  if (lang === defaultLang) return withBase(clean);
+  const localized = translateRoute(clean, lang);
+  return withBase(localized === '/' ? `/${lang}/` : `/${lang}${localized}`);
+}
+
+/** Quita base y prefijo de idioma de una ruta servida (p. ej. '/bp2verse/en/lessons/x' → '/lessons/x'). */
 export function stripLangFromPath(pathname: string): string {
   const stripped = withoutBase(pathname).replace(/^\/en(?=\/|$)/, '');
   return stripped === '' ? '/' : stripped;
+}
+
+/** Deshace los segmentos traducidos de una ruta y la devuelve en forma canónica (ES, sin idioma). */
+function canonicalRoute(path: string): string {
+  for (const [canonical, aliases] of Object.entries(routeAliases)) {
+    for (const alias of Object.values(aliases)) {
+      if (alias !== canonical && (path === alias || path.startsWith(`${alias}/`))) {
+        return canonical + path.slice(alias.length);
+      }
+    }
+  }
+  return path;
+}
+
+/**
+ * Ruta servida (con base y, si aplica, prefijo de idioma) → la misma página en targetLang.
+ * A diferencia de localizedPath, normaliza los segmentos ya traducidos
+ * (p. ej. '/bp2verse/en/lessons/m0-l04' → '/bp2verse/lecciones/m0-l04' al pasar a ES).
+ */
+export function localizedRoutePath(pathname: string, targetLang: Lang): string {
+  return localizedPath(targetLang, canonicalRoute(stripLangFromPath(pathname)));
 }

@@ -75,3 +75,39 @@ El playground usa [`verse-js`](https://www.npmjs.com/package/verse-js)
 3. Toda dependencia nueva justifica aquí: motivo, versión, licencia, riesgo
    y coste transitivo.
 4. Licencias aceptadas: MIT, Apache-2.0, BSD, ISC.
+
+## ADR-007 — Contenido de lecciones en MDX con `@astrojs/mdx`
+
+- **Fecha:** 2026-11-19
+- **Estado:** aceptada
+
+### Decisión
+
+Las lecciones se publican como páginas MDX de Astro usando la integración
+oficial [`@astrojs/mdx`](https://www.npmjs.com/package/@astrojs/mdx)
+(`^8.1.6`, compatible con Astro 7), declarada en `astro.config.mjs` y cargada
+desde content collections (`src/content.config.ts`, loader `glob`).
+
+### Motivo
+
+- Las lecciones necesitan **markdown + componentes embebidos** (CodeBlock,
+  Compare, Callout, Exercise) en el mismo documento; `.astro` plano no da
+  prosa en markdown y `.md` no acepta componentes. MDX es el formato mínimo
+  que resuelve ambos (ya previsto en ADR-001 de `docs/PLAN.md`: "contenido
+  en MDX").
+- Es la **integración oficial** del proyecto Astro, mantenida al ritmo del
+  core: menor riesgo que un remark/rehype hecho a medida o un frontmatter +
+  render manual.
+- Permitir `import` de componentes dentro de cada lección mantiene los
+  snippets Verse como **texto plano** (`<CodeBlock code={...}>` renderiza con
+  `textContent`, sin `set:html`), evitando XSS y SQL-style escapes raros, y
+  evita fences ```verse (Shiki no tiene gramática de Verse).
+
+### Riesgos y política
+
+- Coste transitivo bajo: `@astrojs/mdx` depende del toolchain de Astro
+  (`remark`/`mdx-rs`), sin binarios nativos problemáticos ni payload extra
+  más allá del runtime mínimo de MDX por página.
+- Licencia MIT, compatible con la política de dependencias.
+- Versiones con rango `^` (no ejecuta ni analiza Verse); cualquier subida pasa
+  por `npm run test:verse` + `npm run build` antes de fusionar.

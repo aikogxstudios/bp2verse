@@ -1,0 +1,47 @@
+---
+import { useTranslations, defaultLang, type Lang } from '../i18n/ui';
+
+interface Props {
+  /** Idioma para las etiquetas; por defecto, el de la página (Astro.currentLocale). */
+  lang?: Lang;
+  /** Enunciado como prop (alternativa al slot por defecto; estilo L01–L03). */
+  statement?: string;
+  /** Pista como prop (alternativa al slot `hint`). */
+  hint?: string;
+}
+
+const props = Astro.props;
+const lang = props.lang ?? ((Astro.currentLocale as Lang | undefined) ?? defaultLang);
+const t = useTranslations(lang);
+const hasPromptSlot = Astro.slots.has('default');
+const hasHintSlot = Astro.slots.has('hint');
+const hasSolution = Astro.slots.has('solution');
+const { statement, hint } = props;
+---
+
+<section class="exercise">
+  <h2 class="exercise-title">{t('lesson.exercise')}</h2>
+  <div class="exercise-body">
+    {statement ? <p>{statement}</p> : <slot />}
+  </div>
+  {
+    (hint !== undefined || hasHintSlot) && (
+      <details class="exercise-details">
+        <summary>{t('lesson.hint')}</summary>
+        <div class="exercise-details-body">
+          {hint !== undefined ? <p>{hint}</p> : <slot name="hint" />}
+        </div>
+      </details>
+    )
+  }
+  {
+    hasSolution && (
+      <details class="exercise-details">
+        <summary>{t('lesson.solution')}</summary>
+        <div class="exercise-details-body">
+          <slot name="solution" />
+        </div>
+      </details>
+    )
+  }
+</section>

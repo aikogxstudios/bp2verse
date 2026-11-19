@@ -1,6 +1,6 @@
 ---
 import { languages, useTranslations, type Lang } from '../i18n/ui';
-import { localizedPath, stripLangFromPath } from '../i18n/utils';
+import { localizedPath, localizedRoutePath } from '../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -8,7 +8,7 @@ interface Props {
 
 const { lang } = Astro.props;
 const t = useTranslations(lang);
-const here = stripLangFromPath(Astro.url.pathname);
+const here = Astro.url.pathname;
 const langs = Object.keys(languages) as Lang[];
 const repo = 'https://github.com/aikogxstudios/bp2verse';
 ---
@@ -22,13 +22,13 @@ const repo = 'https://github.com/aikogxstudios/bp2verse';
     <nav class="site-nav" aria-label={t('a11y.nav')}>
       <a href={localizedPath(lang, '/playground')}>{t('nav.playground')}</a>
       <a href={localizedPath(lang, '/') + '#demo'}>{t('nav.demo')}</a>
-      <a href={localizedPath(lang, '/') + '#modulos'}>{t('nav.lessons')}</a>
+      <a href={localizedPath(lang, '/lecciones')}>{t('nav.lessons')}</a>
     </nav>
 
     <div class="lang-switch" role="group" aria-label={t('a11y.lang')}>
       {
         langs.map((l) => (
-          <a href={localizedPath(l, here)} hreflang={l} aria-current={l === lang ? 'page' : undefined}>
+          <a href={localizedRoutePath(here, l)} hreflang={l} aria-current={l === lang ? 'page' : undefined}>
             {l.toUpperCase()}
           </a>
         ))

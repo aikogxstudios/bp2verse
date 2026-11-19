@@ -10,9 +10,10 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test:verse": "node scripts/smoke-verse.mjs"
+    "test:verse": "node --experimental-strip-types scripts/smoke-verse.mjs"
   },
   "dependencies": {
+    "@astrojs/mdx": "^8.1.6",
     "astro": "^7.4.13",
     "verse-js": "0.1.1"
   }

@@ -1,0 +1,103 @@
+---
+id: M0-L03
+lang: en
+module: "M0"
+order: 3
+title: "Variables and State"
+description: "Immutable bindings, var, set, and if checks on logic variables compared to Get, Set, and Branch."
+duration: "9 min"
+run: browser
+verifiedAt: "2026-11-19"
+sources:
+  - label: "Verse Language Reference (UEFN)"
+    url: "https://dev.epicgames.com/documentation/en-us/uefn/verse-language-reference"
+  - label: "Book of Verse — Primitive Types"
+    url: "https://verselang.github.io/book/02_primitives/"
+  - label: "Book of Verse — Mutability"
+    url: "https://verselang.github.io/book/05_mutability/"
+  - label: "Blueprint Variables (UE 5.8)"
+    url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/blueprint-variables-in-unreal-engine?application_version=5.8"
+  - label: "Flow Control in Unreal Engine (UE 5.8)"
+    url: "https://dev.epicgames.com/documentation/en-us/unreal-engine/flow-control-in-unreal-engine?application_version=5.8"
+---
+import Compare from '../../../components/Compare.astro';
+import Callout from '../../../components/Callout.astro';
+import Exercise from '../../../components/Exercise.astro';
+import CodeBlock from '../../../components/CodeBlock.astro';
+import { Fragment } from 'astro/jsx-runtime';
+import { m0l03Main, m0l03Solution } from '../../../lib/snippets';
+
+<Compare>
+<Fragment slot="bp">
+
+## What You Already Do in Blueprints
+
+In the **My Blueprint** panel you click `+ Variable`, pick a pin type by color (**`Integer`** sea green, **`Float`** yellow-green, **`Boolean`** maroon, **`String`** magenta), and drag **`Get`** (`Ctrl + Drag`) to read or **`Set`** (`Alt + Drag`) to overwrite its value—often followed by a **`Branch`** checking a `Boolean`.
+
+- **Blueprint pattern:** Variables `MaxShield` (`Integer`, `50`), `Health` (`Integer`, `100`), `MoveSpeed` (`Float`, `450.0`), `IsAlerted` (`Boolean`, `false`) → `Set Health` (`Health - 25`) → `Set MoveSpeed` (`600.0`) → `Set IsAlerted` (`true`) → `Branch` (`Condition`: `IsAlerted`) → `Print String`.
+- **Official node names (EN):** `Get` (Variable Getter), `Set` (Variable Setter), `Branch`, `Subtract` (`Integer - Integer`), `Print String`.
+
+| Blueprint (UE 5.8) | Pin Color | Verse | Example |
+|---|---|---|---|
+| `Integer` (`int32`) | Sea green | `int` | `var Health : int = 100` |
+| `Float` (`double`) | Yellow-green | `float` | `var MoveSpeed : float = 450.0` |
+| `Boolean` (`bool`) | Maroon | `logic` (`true` / `false`) | `var IsAlerted : logic = false` |
+| `String` (`FString`) | Magenta | `string` | `HeroName : string = "Kai"` |
+| `Get` / read-only | Data pin | `Name : type = value` (or `:=`) | `MaxShield : int = 50` (immutable) |
+| `Set` (`exec` pin) | Impure node | `var` + `set Name = value` | `set Health = Health - 25` |
+
+</Fragment>
+<Fragment slot="verse">
+
+## The Verse Equivalent
+
+In Verse every binding is **immutable by default** (a constant). You can only reassign values explicitly declared with `var`, and every reassignment must use the `set` keyword.
+
+<CodeBlock label="main.verse" code={m0l03Main} />
+
+**Exact output (`verse-js` 0.1.1):**
+
+```text
+Start -> HP: 100, Speed: 450.0
+Alert! HP: 75, MaxShield: 50, Speed: 600.0
+```
+
+</Fragment>
+</Compare>
+
+## Line-by-line annotation
+
+| Line | What it does | Blueprint equivalent |
+|---|---|---|
+| `1` | `using { /UnrealEngine.com/Temporary/Diagnostics }` brings `Print` into scope. | Access to `Print String`. |
+| `3` | `MaxShield : int = 50` creates an immutable `int` constant. | An `Integer` variable you only read with `Get` and never `Set`. |
+| `4` | `var Health : int = 100` declares a mutable `int` (in UEFN, `var` requires an explicit type). | An `Integer` variable defaulting to `100`. |
+| `5` | `var MoveSpeed : float = 450.0` declares a mutable `float`. | A `Float` variable defaulting to `450.0`. |
+| `6` | `var IsAlerted : logic = false` declares a mutable `logic` flag. | A `Boolean` variable defaulting to `false`. |
+| `8` | `Print(...)` logs the initial state before any mutation. | `Print String` reading the initial `Get` nodes. |
+| `9` | `set Health = Health - 25` mutates `Health` from `100` to `75`. | `Set Health` wired to `Get Health - 25`. |
+| `10` | `set MoveSpeed = 600.0` updates `MoveSpeed` using a `float` literal (`.0`). | `Set MoveSpeed` set to `600.0`. |
+| `11` | `set IsAlerted = true` flips the `logic` variable to true. | `Set IsAlerted` checked (`true`). |
+| `12` | `if (IsAlerted?):` tests whether `IsAlerted` is `true` with `?`. | `Branch` node with `Get IsAlerted` wired into `Condition`. |
+| `13` | `Print(...)` runs only when line 12 succeeds. | `Print String` wired to the `True` pin of `Branch`. |
+
+<Callout variant="trap" title="Migrant Trap">
+Writing `Health = 75` without `set` **does not assign anything**—Verse reads `=` as an equality check (`This expression can fail; it must occur in a failure context`). Also keep three rules in mind: UEFN requires an explicit type on `var` (`var Health : int = 100`, not `var Health := 100`), Verse never mixes `int` and `float` implicitly (`450.0 + 10` fails to compile), and testing a `logic` variable in `if` uses `?` (`if (IsAlerted?):`).
+</Callout>
+
+<Exercise
+  statement={"Declare an immutable MaxAmmo : int = 30, a mutable var Ammo : int = 30, and var Reloading : logic = false. Subtract 12 from Ammo with set, set Reloading to true, and inside if (Reloading?): print \"Reloading... 18/30 left\"."}
+  hint={"Use set Ammo = Ammo - 12, then set Reloading = true, and wrap Print(\"Reloading... {Ammo}/{MaxAmmo} left\") inside an indented if (Reloading?): block."}
+>
+<Fragment slot="solution">
+
+<CodeBlock label="main.verse" code={m0l03Solution} />
+
+**Expected output (`verse-js` 0.1.1):**
+
+```text
+Reloading... 18/30 left
+```
+
+</Fragment>
+</Exercise>

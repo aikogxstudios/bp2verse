@@ -1,0 +1,26 @@
+---
+import { useTranslations, defaultLang, type Lang } from '../i18n/ui';
+
+interface Props {
+  /** Idioma para el aria-label por defecto; por defecto, el de la página. */
+  lang?: Lang;
+  /** Contenido del bloque (se renderiza como texto plano, sin set:html). */
+  code: string;
+  /** Etiqueta opcional mostrada como cabecera (p. ej. nombre de archivo). */
+  label?: string;
+}
+
+const { code, label } = Astro.props;
+const lang = Astro.props.lang ?? ((Astro.currentLocale as Lang | undefined) ?? defaultLang);
+const t = useTranslations(lang);
+const ariaLabel = label ?? t('lesson.code');
+---
+
+<figure class="codeblock">
+  {label && <figcaption class="codeblock-label">{label}</figcaption>}
+  <pre
+    tabindex="0"
+    role="region"
+    aria-label={ariaLabel}
+  ><code>{code}</code></pre>
+</figure>

@@ -122,7 +122,8 @@ const es = {
   'footer.tagline': 'De Blueprints a Verse, sin empezar de cero.',
   'footer.disclaimer':
     'Proyecto no afiliado a Epic Games. Verse, Unreal Engine y Blueprints son marcas de Epic Games, Inc.',
-  'footer.license': 'Licencias por definir',
+  'footer.license.code': 'Código MIT',
+  'footer.license.content': 'Contenido CC BY-SA 4.0',
 };
 
 const en: typeof es = {
@@ -240,7 +241,8 @@ const en: typeof es = {
   'footer.tagline': 'From Blueprints to Verse, without starting over.',
   'footer.disclaimer':
     'Not affiliated with Epic Games. Verse, Unreal Engine and Blueprints are trademarks of Epic Games, Inc.',
-  'footer.license': 'Licenses to be decided',
+  'footer.license.code': 'Code MIT',
+  'footer.license.content': 'Content CC BY-SA 4.0',
 };
 
 export const ui = { es, en };

@@ -27,12 +27,12 @@ import Callout from '../../../components/Callout.astro';
 import Exercise from '../../../components/Exercise.astro';
 import CodeBlock from '../../../components/CodeBlock.astro';
 import { Fragment } from 'astro/jsx-runtime';
-
+import { m0l01Main, m0l01Solution } from '../../../lib/snippets';
 
 <Compare>
 <Fragment slot="bp">
 
-### Lo que ya haces en Blueprints
+## Lo que ya haces en Blueprints
 
 Cuando abres el **Event Graph** de un **Blueprint Class** (por ejemplo, un `Actor`), arrancas desde un nodo rojo de evento —como **`Event BeginPlay`**— y tiras un cable blanco desde su **Execution Pin** (`exec`) hasta un nodo **`Print String`** o hasta una función propia como **`GreetPlayer`** que recibe un pin de datos **`String`**.
 
@@ -42,20 +42,11 @@ Cuando abres el **Event Graph** de un **Blueprint Class** (por ejemplo, un `Acto
 </Fragment>
 <Fragment slot="verse">
 
-### Equivalente en Verse
+## Equivalente en Verse
 
 En Verse no dibujas cables: **un evento es una función** que sobrescribes, **un cable blanco de ejecución es una línea debajo de otra** con la misma indentación, y **un pin de datos es un parámetro tipado** entre paréntesis.
 
-<CodeBlock label="main.verse" code={`using { /Fortnite.com/Devices }
-using { /UnrealEngine.com/Temporary/Diagnostics }
-
-hello_bridge_device := class(creative_device):
-    OnBegin<override>()<suspends> : void =
-        Print("BeginPlay -> OnBegin")
-        GreetPlayer("Alex")
-
-    GreetPlayer(PlayerName : string) : void =
-        Print("Welcome, {PlayerName}!")`} />
+<CodeBlock label="main.verse" code={m0l01Main} />
 
 **Salida exacta (`verse-js` 0.1.1):**
 
@@ -86,25 +77,13 @@ Welcome, Alex!
 En Blueprints los eventos vienen puestos y los cables blancos definen qué pertenece al flujo; en Verse `OnBegin` sobrescribe al padre y **exige `<override>` (con `<>`, nunca `@override`)**, además de **indentación** para saber qué líneas cuelgan del evento. Si olvidas `<override>`, el compilador rechaza el código (`'OnBegin' overrides an inherited member and must be marked <override>`), y si desalineas una línea de su bloque, queda fuera del flujo.
 </Callout>
 
-## Micro-ejercicio
-
 <Exercise
   statement={"Partiendo del snippet de hello_bridge_device, añade una segunda llamada a GreetPlayer dentro de OnBegin pasándole \"Sam\", y cambia el texto de Print dentro de GreetPlayer para que imprima \"Player joined: {PlayerName}\"."}
   hint={"Coloca GreetPlayer(\"Sam\") justo debajo de GreetPlayer(\"Alex\") con exactamente la misma indentación (8 espacios), y actualiza el literal dentro de Print(\"...\") en la última línea."}
 >
 <Fragment slot="solution">
 
-<CodeBlock label="main.verse" code={`using { /Fortnite.com/Devices }
-using { /UnrealEngine.com/Temporary/Diagnostics }
-
-hello_bridge_device := class(creative_device):
-    OnBegin<override>()<suspends> : void =
-        Print("BeginPlay -> OnBegin")
-        GreetPlayer("Alex")
-        GreetPlayer("Sam")
-
-    GreetPlayer(PlayerName : string) : void =
-        Print("Player joined: {PlayerName}")`} />
+<CodeBlock label="main.verse" code={m0l01Solution} />
 
 **Salida esperada (`verse-js` 0.1.1):**
 

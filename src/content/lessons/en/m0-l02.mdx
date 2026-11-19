@@ -23,12 +23,12 @@ import Callout from '../../../components/Callout.astro';
 import Exercise from '../../../components/Exercise.astro';
 import CodeBlock from '../../../components/CodeBlock.astro';
 import { Fragment } from 'astro/jsx-runtime';
-
+import { m0l02Main, m0l02Solution } from '../../../lib/snippets';
 
 <Compare>
 <Fragment slot="bp">
 
-### What You Already Do in Blueprints
+## What You Already Do in Blueprints
 
 To quickly inspect values in the **Event Graph**, you drop a **`Print String`** node. Whenever you need to combine text and numbers—say, a hero's name and score—you wire an **`Append`** (`String`) node with `A`, `B`, `C` pins and let Unreal auto-insert **`To String (Integer)`** conversion nodes on the way into **`In String`**.
 
@@ -38,19 +38,11 @@ To quickly inspect values in the **Event Graph**, you drop a **`Print String`** 
 </Fragment>
 <Fragment slot="verse">
 
-### The Verse Equivalent
+## The Verse Equivalent
 
 In Verse there is no `Append` node chain or conversion clutter: **you interpolate values and expressions directly inside quotes** using `{...}` and pass the resulting `string` to `Print("...")`.
 
-<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
-
-HeroName : string = "Kai"
-BaseScore : int = 50
-Bonus : int = 25
-
-Print("Hero: {HeroName}")
-Print("Base: {BaseScore}, Bonus: {Bonus}")
-Print("Total: {BaseScore + Bonus}")`} />
+<CodeBlock label="main.verse" code={m0l02Main} />
 
 **Exact output (`verse-js` 0.1.1):**
 
@@ -81,20 +73,13 @@ Total: 75
 In Blueprints, dragging a green `Integer` pin onto `Print String`'s magenta `In String` pin silently creates a `To String` node; in Verse, **`Print(BaseScore)` fails to compile** (`Argument 1 expects string, got int`). Always wrap values in quotes with `{...}` (`Print("{BaseScore}")`), and in UEFN remember to include `using { /UnrealEngine.com/Temporary/Diagnostics }`.
 </Callout>
 
-## Micro-Exercise
-
 <Exercise
   statement={"Declare two constants Stage : int = 2 and Coins : int = 15, then use a single Print call with {...} interpolation to output \"Stage 2 | Coins: 15 | Double: 30\"."}
   hint={"You can write arithmetic directly inside braces, such as {Coins * 2}, all inside one double-quoted string."}
 >
 <Fragment slot="solution">
 
-<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
-
-Stage : int = 2
-Coins : int = 15
-
-Print("Stage {Stage} | Coins: {Coins} | Double: {Coins * 2}")`} />
+<CodeBlock label="main.verse" code={m0l02Solution} />
 
 **Expected output (`verse-js` 0.1.1):**
 

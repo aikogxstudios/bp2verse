@@ -1,9 +1,11 @@
 // Smoke test del runtime verse-js 0.1.1 en Node.
-// Ejecuta los 4 snippets del playground y falla si la salida no coincide.
+// Ejecuta los 4 snippets del playground + los 8 de las lecciones (M0-L01..L04,
+// fuente única en src/lib/snippets.ts) y falla si la salida no coincide.
 // El caso 'sleep' comprueba además que la ejecución tarda ~2 s (suspensión real).
 import { createHost } from 'verse-js';
 import { uefnModules } from 'verse-js/extras/uefn';
 import { MemoryStorageAdapter } from 'verse-js/adapters';
+import { lessonSmokeCases } from '../src/lib/snippets.ts';
 
 const cases = [
   {
@@ -56,7 +58,9 @@ Print("done")`,
 
 let failed = 0;
 
-for (const c of cases) {
+const allCases = [...cases, ...lessonSmokeCases];
+
+for (const c of allCases) {
   const host = createHost({ modules: uefnModules, persistence: new MemoryStorageAdapter() });
   const t0 = Date.now();
   const result = await host.execute(c.source);
@@ -84,8 +88,8 @@ for (const c of cases) {
 }
 
 if (failed > 0) {
-  console.error(`\n${failed} de ${cases.length} snippets fallaron`);
+  console.error(`\n${failed} de ${allCases.length} snippets fallaron`);
   process.exit(1);
 }
 
-console.log(`\n${cases.length} snippets OK`);
+console.log(`\n${allCases.length} snippets OK`);

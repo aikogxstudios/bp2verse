@@ -25,12 +25,12 @@ import Callout from '../../../components/Callout.astro';
 import Exercise from '../../../components/Exercise.astro';
 import CodeBlock from '../../../components/CodeBlock.astro';
 import { Fragment } from 'astro/jsx-runtime';
-
+import { m0l03Main, m0l03Solution } from '../../../lib/snippets';
 
 <Compare>
 <Fragment slot="bp">
 
-### What You Already Do in Blueprints
+## What You Already Do in Blueprints
 
 In the **My Blueprint** panel you click `+ Variable`, pick a pin type by color (**`Integer`** sea green, **`Float`** yellow-green, **`Boolean`** maroon, **`String`** magenta), and drag **`Get`** (`Ctrl + Drag`) to read or **`Set`** (`Alt + Drag`) to overwrite its value—often followed by a **`Branch`** checking a `Boolean`.
 
@@ -49,23 +49,11 @@ In the **My Blueprint** panel you click `+ Variable`, pick a pin type by color (
 </Fragment>
 <Fragment slot="verse">
 
-### The Verse Equivalent
+## The Verse Equivalent
 
 In Verse every binding is **immutable by default** (a constant). You can only reassign values explicitly declared with `var`, and every reassignment must use the `set` keyword.
 
-<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
-
-MaxShield : int = 50
-var Health : int = 100
-var MoveSpeed : float = 450.0
-var IsAlerted : logic = false
-
-Print("Start -> HP: {Health}, Speed: {MoveSpeed}")
-set Health = Health - 25
-set MoveSpeed = 600.0
-set IsAlerted = true
-if (IsAlerted?):
-    Print("Alert! HP: {Health}, MaxShield: {MaxShield}, Speed: {MoveSpeed}")`} />
+<CodeBlock label="main.verse" code={m0l03Main} />
 
 **Exact output (`verse-js` 0.1.1):**
 
@@ -97,24 +85,13 @@ Alert! HP: 75, MaxShield: 50, Speed: 600.0
 Writing `Health = 75` without `set` **does not assign anything**—Verse reads `=` as an equality check (`This expression can fail; it must occur in a failure context`). Also keep three rules in mind: UEFN requires an explicit type on `var` (`var Health : int = 100`, not `var Health := 100`), Verse never mixes `int` and `float` implicitly (`450.0 + 10` fails to compile), and testing a `logic` variable in `if` uses `?` (`if (IsAlerted?):`).
 </Callout>
 
-## Micro-Exercise
-
 <Exercise
   statement={"Declare an immutable MaxAmmo : int = 30, a mutable var Ammo : int = 30, and var Reloading : logic = false. Subtract 12 from Ammo with set, set Reloading to true, and inside if (Reloading?): print \"Reloading... 18/30 left\"."}
   hint={"Use set Ammo = Ammo - 12, then set Reloading = true, and wrap Print(\"Reloading... {Ammo}/{MaxAmmo} left\") inside an indented if (Reloading?): block."}
 >
 <Fragment slot="solution">
 
-<CodeBlock label="main.verse" code={`using { /UnrealEngine.com/Temporary/Diagnostics }
-
-MaxAmmo : int = 30
-var Ammo : int = 30
-var Reloading : logic = false
-
-set Ammo = Ammo - 12
-set Reloading = true
-if (Reloading?):
-    Print("Reloading... {Ammo}/{MaxAmmo} left")`} />
+<CodeBlock label="main.verse" code={m0l03Solution} />
 
 **Expected output (`verse-js` 0.1.1):**
 

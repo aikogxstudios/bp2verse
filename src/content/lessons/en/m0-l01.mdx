@@ -27,12 +27,12 @@ import Callout from '../../../components/Callout.astro';
 import Exercise from '../../../components/Exercise.astro';
 import CodeBlock from '../../../components/CodeBlock.astro';
 import { Fragment } from 'astro/jsx-runtime';
-
+import { m0l01Main, m0l01Solution } from '../../../lib/snippets';
 
 <Compare>
 <Fragment slot="bp">
 
-### What You Already Do in Blueprints
+## What You Already Do in Blueprints
 
 When you open the **Event Graph** of a **Blueprint Class** (for example, an `Actor`), you start from a red event node—such as **`Event BeginPlay`**—and drag a white wire from its **Execution Pin** (`exec`) to a **`Print String`** node, then into a custom function like **`GreetPlayer`** with a **`String`** data input pin.
 
@@ -42,20 +42,11 @@ When you open the **Event Graph** of a **Blueprint Class** (for example, an `Act
 </Fragment>
 <Fragment slot="verse">
 
-### The Verse Equivalent
+## The Verse Equivalent
 
 In Verse you do not wire nodes together: **an event is an overridden method**, **a white execution wire is one line following another** at the same indentation level, and **a data pin is a typed parameter** inside parentheses.
 
-<CodeBlock label="main.verse" code={`using { /Fortnite.com/Devices }
-using { /UnrealEngine.com/Temporary/Diagnostics }
-
-hello_bridge_device := class(creative_device):
-    OnBegin<override>()<suspends> : void =
-        Print("BeginPlay -> OnBegin")
-        GreetPlayer("Alex")
-
-    GreetPlayer(PlayerName : string) : void =
-        Print("Welcome, {PlayerName}!")`} />
+<CodeBlock label="main.verse" code={m0l01Main} />
 
 **Exact output (`verse-js` 0.1.1):**
 
@@ -86,25 +77,13 @@ Welcome, Alex!
 In Blueprints, events sit ready on the graph and white wires decide what belongs to them; in Verse, `OnBegin` overrides a parent method and **requires `<override>` (in angle brackets, never `@override`)**, while **indentation acts as the execution wire**. Omit `<override>` and the compiler rejects it (`'OnBegin' overrides an inherited member and must be marked <override>`); misalign a line and it no longer belongs to that block.
 </Callout>
 
-## Micro-Exercise
-
 <Exercise
   statement={"Starting from hello_bridge_device, add a second call to GreetPlayer inside OnBegin passing \"Sam\", and update GreetPlayer so it prints \"Player joined: {PlayerName}\"."}
   hint={"Place GreetPlayer(\"Sam\") directly below GreetPlayer(\"Alex\") at the exact same indentation (8 spaces), then change the string inside Print(\"...\") on the last line."}
 >
 <Fragment slot="solution">
 
-<CodeBlock label="main.verse" code={`using { /Fortnite.com/Devices }
-using { /UnrealEngine.com/Temporary/Diagnostics }
-
-hello_bridge_device := class(creative_device):
-    OnBegin<override>()<suspends> : void =
-        Print("BeginPlay -> OnBegin")
-        GreetPlayer("Alex")
-        GreetPlayer("Sam")
-
-    GreetPlayer(PlayerName : string) : void =
-        Print("Player joined: {PlayerName}")`} />
+<CodeBlock label="main.verse" code={m0l01Solution} />
 
 **Expected output (`verse-js` 0.1.1):**
 

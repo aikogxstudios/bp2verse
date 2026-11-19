@@ -10,7 +10,7 @@ description: >-
 
 ## Stack y enrutado i18n
 
-- **Framework:** Astro 7 (`"astro": "^7.4.13"` en `package.json`), TypeScript, salida estática en Cloudflare Pages.
+- **Framework:** Astro 7 (`"astro": "^7.4.13"` en `package.json`), TypeScript, salida estática (GitHub Pages o Cloudflare Pages; decisión pendiente).
 - **i18n (`astro.config.mjs`):** `defaultLocale: 'es'`, `locales: ['es', 'en']`, `routing: { prefixDefaultLocale: false }`.
   - Español (canónico) vive en `/` sin prefijo `/es/` (p. ej. `/`, `/playground`).
   - Inglés vive bajo `/en/` (p. ej. `/en/`, `/en/playground`).

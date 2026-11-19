@@ -59,7 +59,7 @@ Salida esperada: `["Guard down"]`
 ### 3. `ValidateAge` (`<decides>`)
 
 ```verse
-ValidateAge(Age : int)<decides> : int =
+ValidateAge(Age : int)<decides><transacts> : int =
     Age >= 0
     Age <= 150
     Age

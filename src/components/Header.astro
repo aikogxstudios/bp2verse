@@ -20,8 +20,9 @@ const repo = 'https://github.com/aikogxstudios/bp2verse';
     </a>
 
     <nav class="site-nav" aria-label={t('a11y.nav')}>
-      <a href="#demo">{t('nav.demo')}</a>
-      <a href="#modulos">{t('nav.lessons')}</a>
+      <a href={localizedPath(lang, '/playground')}>{t('nav.playground')}</a>
+      <a href={localizedPath(lang, '/') + '#demo'}>{t('nav.demo')}</a>
+      <a href={localizedPath(lang, '/') + '#modulos'}>{t('nav.lessons')}</a>
     </nav>
 
     <div class="lang-switch" role="group" aria-label={t('a11y.lang')}>

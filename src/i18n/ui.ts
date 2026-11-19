@@ -105,7 +105,7 @@ const es = {
   'pg.example.class': 'Clase con estado',
   'pg.example.decides': 'Fallo y <decides>',
   'pg.run': 'Ejecutar',
-  'pg.reset': 'Reset',
+  'pg.reset': 'Reiniciar',
   'pg.editor': 'Editor de código Verse',
   'pg.output': 'Salida',
   'pg.error': 'Errores',
@@ -118,7 +118,7 @@ const es = {
   'footer.tagline': 'De Blueprints a Verse, sin empezar de cero.',
   'footer.disclaimer':
     'Proyecto no afiliado a Epic Games. Verse, Unreal Engine y Blueprints son marcas de Epic Games, Inc.',
-  'footer.license': 'Código MIT · Contenido CC BY-SA 4.0',
+  'footer.license': 'Licencias por definir',
 };
 
 const en: typeof es = {
@@ -232,7 +232,7 @@ const en: typeof es = {
   'footer.tagline': 'From Blueprints to Verse, without starting over.',
   'footer.disclaimer':
     'Not affiliated with Epic Games. Verse, Unreal Engine and Blueprints are trademarks of Epic Games, Inc.',
-  'footer.license': 'Code MIT · Content CC BY-SA 4.0',
+  'footer.license': 'Licenses to be decided',
 };
 
 export const ui = { es, en };

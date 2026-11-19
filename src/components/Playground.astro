@@ -532,7 +532,12 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
 
   @media (max-width: 480px) {
     .pg-editor-wrap {
-      min-height: 300px;
+      min-height: 220px;
+    }
+
+    .pg-console {
+      min-height: 160px;
+      max-height: 320px;
     }
 
     .pg-gutter,

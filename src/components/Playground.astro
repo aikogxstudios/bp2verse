@@ -18,6 +18,7 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
   aria-labelledby="pg-heading"
   data-loading={t('pg.loading')}
   data-runtime-error={t('pg.runtime.error')}
+  data-timeout={t('pg.run.timeout')}
   data-empty={t('pg.console.empty')}
   data-none={t('pg.output.none')}
 >
@@ -72,7 +73,7 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
         <div class="panel pg-panel pg-panel--console">
           <div class="panel-head">
             <span class="panel-dot panel-dot--bp" aria-hidden="true"></span>
-            <p class="panel-title">{t('pg.output')} <span class="panel-sub">· console</span></p>
+            <p class="panel-title">{t('pg.output')} <span class="panel-sub">· {t('pg.console.tag')}</span></p>
           </div>
           <div class="pg-console" role="log" aria-live="polite" aria-atomic="false" aria-label={t('pg.output')}>
             <p class="pg-note">{t('pg.console.empty')}</p>
@@ -90,7 +91,10 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
 
 <script>
   import { EXAMPLES, DEFAULT_EXAMPLE_ID, STORAGE_KEYS } from '../playground/examples';
-  import type { VerseHost } from 'verse-js';
+  import type { VerseHost, VerseRun } from 'verse-js';
+
+  /** Tiempo máximo de ejecución antes de cancelar la run en curso. */
+  const RUN_TIMEOUT_MS = 5000;
 
   const root = document.getElementById('playground');
 
@@ -109,6 +113,14 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
       let persistence: { clear(): void } | null = null;
       let running = false;
       let saveTimer: number | undefined;
+
+      /** Run en curso (para poder cancelarla) y su temporizador. */
+      let activeRun: VerseRun | null = null;
+      let activeTimer: number | undefined;
+      /** true cuando Reiniciar/cambio de ejemplo descarta la salida de la run. */
+      let discarded = false;
+      /** true cuando la run se detuvo por superar el tiempo máximo. */
+      let timedOut = false;
 
       const exampleById = new Map(EXAMPLES.map((ex) => [ex.id, ex]));
 
@@ -182,13 +194,12 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
       });
 
       // --- consola y zona de errores --------------------------------------
-      function setNote(text: string): void {
+      function setNote(text: string, warn = false): void {
         consoleEl.replaceChildren();
         const p = document.createElement('p');
-        p.className = 'pg-note';
+        p.className = warn ? 'pg-note pg-note--warn' : 'pg-note';
         p.textContent = text;
         consoleEl.append(p);
-        consoleEl.setAttribute('aria-busy', 'true');
       }
 
       function clearErrors(): void {
@@ -196,16 +207,65 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
         errorsZone.hidden = true;
       }
 
+      function renderProblems(
+        errors: { message: string; startLine: number; startColumn: number }[],
+        warnings: { message: string; startLine: number; startColumn: number }[],
+        extraErrors: string[],
+      ): void {
+        if (errors.length + warnings.length + extraErrors.length === 0) {
+          errorsZone.hidden = true;
+          return;
+        }
+        const frag = document.createDocumentFragment();
+        const add = (text: string, cls: string): void => {
+          const li = document.createElement('li');
+          li.className = cls;
+          li.textContent = text;
+          frag.append(li);
+        };
+        for (const d of errors) {
+          add(`${d.startLine > 0 ? `[${d.startLine}:${d.startColumn}] ` : ''}${d.message}`, 'pg-err');
+        }
+        for (const d of warnings) {
+          add(`${d.startLine > 0 ? `[${d.startLine}:${d.startColumn}] ` : ''}${d.message}`, 'pg-warn');
+        }
+        for (const msg of extraErrors) add(msg, 'pg-err');
+        errorsList.replaceChildren(frag);
+        errorsZone.hidden = false;
+      }
+
       function showRuntimeError(detail?: string): void {
-        const msg = root.dataset.runtimeError ?? 'The Verse runtime failed to load.';
+        const msg = root.dataset.runtimeError ?? '';
         clearErrors();
         const li = document.createElement('li');
         li.className = 'pg-err';
         li.textContent = detail ? `${msg} (${detail})` : msg;
         errorsList.append(li);
         errorsZone.hidden = false;
-        setNote(msg);
-        consoleEl.removeAttribute('aria-busy');
+        setNote(msg, true);
+      }
+
+      // --- cancelación ------------------------------------------------------
+      /**
+       * Detiene la run en curso. Con 'reset' la salida se descarta
+       * (la consola ya se ha limpiado); con 'timeout' se conserva la
+       * salida parcial y se muestra un aviso traducido.
+       */
+      function cancelRun(reason: 'reset' | 'timeout'): void {
+        if (activeTimer !== undefined) {
+          window.clearTimeout(activeTimer);
+          activeTimer = undefined;
+        }
+        if (!activeRun) return;
+        if (reason === 'reset') discarded = true;
+        else timedOut = true;
+        const handle = activeRun;
+        activeRun = null;
+        try {
+          handle.stop();
+        } catch {
+          /* la run ya había terminado */
+        }
       }
 
       // --- runtime verse-js (carga perezosa) -------------------------------
@@ -232,52 +292,81 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
         if (running) return;
         running = true;
         runBtn.disabled = true;
+        discarded = false;
+        timedOut = false;
         persist();
         clearErrors();
-        setNote(root.dataset.loading ?? '');
+        if (!hostPromise) setNote(root.dataset.loading ?? '');
         try {
           const host = await ensureHost();
-          const result = await host.execute(editor.value);
+          const outcome = host.compile(editor.value, { strict: true });
 
+          if (!outcome.ok) {
+            // Errores de compilación, con línea/columna de cada diagnóstico.
+            setNote(root.dataset.none ?? '');
+            renderProblems(
+              outcome.diagnostics.filter((d) => d.severity === 'error'),
+              outcome.diagnostics.filter((d) => d.severity === 'warning'),
+              [],
+            );
+            return;
+          }
+          // Consola limpia: la salida se pinta en directo (onOutput).
           consoleEl.replaceChildren();
-          if (result.output.length === 0) {
-            const p = document.createElement('p');
-            p.className = 'pg-note';
-            p.textContent = root.dataset.none ?? '';
-            consoleEl.append(p);
-          } else {
-            for (const line of result.output) {
+          consoleEl.removeAttribute('aria-busy');
+          let produced = false;
+          const runtimeErrors: string[] = [];
+
+          const handle = host.run(outcome, {
+            onOutput: (level, text) => {
+              if (discarded || level !== 'stdout') return;
+              produced = true;
               const div = document.createElement('div');
               div.className = 'pg-line';
-              div.textContent = line;
+              div.textContent = text;
               consoleEl.append(div);
+              consoleEl.scrollTop = consoleEl.scrollHeight;
+            },
+          });
+          activeRun = handle;
+          activeTimer = window.setTimeout(() => cancelRun('timeout'), RUN_TIMEOUT_MS);
+
+          try {
+            await handle.done;
+          } catch (err) {
+            // VerseRuntimeError / VerseRunCancelled.
+            if (!discarded && !timedOut) {
+              const isCancelled = err instanceof Error && err.name === 'VerseRunCancelled';
+              if (!isCancelled) {
+                runtimeErrors.push(err instanceof Error ? err.message : String(err));
+              }
             }
+          } finally {
+            // La run ya terminó: solo soltamos timer y handle, sin tocar flags.
+            if (activeTimer !== undefined) {
+              window.clearTimeout(activeTimer);
+              activeTimer = undefined;
+            }
+            activeRun = null;
           }
 
-          // Errores y diagnósticos (con línea/columna si están disponibles).
-          const diagErrors = result.diagnostics.filter((d) => d.severity === 'error');
-          const warnings = result.diagnostics.filter((d) => d.severity === 'warning');
-          const diagMessages = new Set(diagErrors.map((d) => d.message));
-          const extraErrors = result.errors.filter((msg) => !diagMessages.has(msg));
+          if (discarded) return; // Reiniciar/cambio de ejemplo: salida descartada
 
-          if (diagErrors.length + extraErrors.length + warnings.length > 0) {
-            const frag = document.createDocumentFragment();
-            const add = (text: string, cls: string): void => {
-              const li = document.createElement('li');
-              li.className = cls;
-              li.textContent = text;
-              frag.append(li);
-            };
-            for (const d of [...diagErrors, ...warnings]) {
-              const where = d.startLine > 0 ? `[${d.startLine}:${d.startColumn}] ` : '';
-              add(`${where}${d.message}`, d.severity === 'error' ? 'pg-err' : 'pg-warn');
-            }
-            for (const msg of extraErrors) add(msg, 'pg-err');
-            errorsList.replaceChildren(frag);
-            errorsZone.hidden = false;
+          if (timedOut) {
+            // La salida parcial se queda; se añade el aviso traducido.
+            const p = document.createElement('p');
+            p.className = 'pg-note pg-note--warn';
+            p.textContent = root.dataset.timeout ?? '';
+            consoleEl.append(p);
+          } else if (!produced) {
+            setNote(root.dataset.none ?? '');
           }
 
-          consoleEl.removeAttribute('aria-busy');
+          renderProblems(
+            [],
+            outcome.diagnostics.filter((d) => d.severity === 'warning'),
+            runtimeErrors,
+          );
         } catch (err) {
           showRuntimeError(err instanceof Error ? err.message : String(err));
         } finally {
@@ -287,28 +376,35 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
       }
 
       function reset(): void {
+        cancelRun('reset');
         const example = exampleById.get(select.value) ?? exampleById.get(DEFAULT_EXAMPLE_ID);
         editor.value = example ? example.code : '';
         updateGutter();
         clearErrors();
         setNote(root.dataset.empty ?? '');
-        consoleEl.removeAttribute('aria-busy');
         try {
           localStorage.removeItem(STORAGE_KEYS.code);
           localStorage.removeItem(STORAGE_KEYS.example);
         } catch {
           /* ignore */
         }
-        persistence?.clear();
+        try {
+          persistence?.clear();
+        } catch {
+          /* almacenamiento bloqueado: no pasa nada */
+        }
         persist();
         editor.focus();
       }
 
       select.addEventListener('change', () => {
+        cancelRun('reset');
         const example = exampleById.get(select.value);
         if (example) {
           editor.value = example.code;
           updateGutter();
+          clearErrors();
+          setNote(root.dataset.empty ?? '');
           persist();
           editor.focus();
         }
@@ -530,22 +626,6 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
     outline-offset: -2px;
   }
 
-  @media (max-width: 480px) {
-    .pg-editor-wrap {
-      min-height: 220px;
-    }
-
-    .pg-console {
-      min-height: 160px;
-      max-height: 320px;
-    }
-
-    .pg-gutter,
-    .pg-editor {
-      font-size: 0.78rem;
-    }
-  }
-
   /* ---------- Consola ---------- */
 
   .pg-console {
@@ -575,6 +655,28 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
   .pg-note {
     color: var(--muted);
     font-style: italic;
+  }
+
+  .pg-note--warn {
+    color: var(--bp);
+  }
+
+  /* ---------- Móvil: después de las reglas generales, para que no las pise ---------- */
+
+  @media (max-width: 480px) {
+    .pg-editor-wrap {
+      min-height: 220px;
+    }
+
+    .pg-console {
+      min-height: 160px;
+      max-height: 220px;
+    }
+
+    .pg-gutter,
+    .pg-editor {
+      font-size: 0.78rem;
+    }
   }
 
   /* ---------- Zona de errores ---------- */

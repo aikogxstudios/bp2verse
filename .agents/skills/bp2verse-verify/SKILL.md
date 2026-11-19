@@ -24,7 +24,7 @@ No des por buena ninguna funcionalidad por lectura estática o suposición: ejec
 
 - Sirve el build generado (p. ej. `npm run preview` o servidor estático local sobre `dist/`) y abre la URL real en Playwright apuntando al binario más reciente cacheado en local bajo el patrón:
   `~/.cache/ms-playwright/chromium-*/chrome-linux64/chrome`
-- Comprueba en cada página afectada (`/` y `/en/`):
+- Comprueba todas las rutas realmente modificadas (p. ej. `/`, `/en/`, e incluyendo `/playground` y `/en/playground` cuando se toquen):
   - **Consola limpia:** 0 `console.error` y 0 `pageerror` (incluyendo carga de islas/Web Workers).
   - **Salida esperada:** interactúa con los controles reales (p. ej. selector de ejemplos, botón Run del playground, selector de idioma) y verifica el texto renderizado en el DOM.
   - **A11y básica:** foco por teclado (`Tab`) visible y landmarks sin errores obvios.

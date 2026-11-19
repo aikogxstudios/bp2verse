@@ -18,8 +18,8 @@ description: >-
 
 ## Trampas verificadas (errores frecuentes al migrar desde Blueprints)
 
-1. **`guard` es palabra reservada:** no uses `guard` como nombre de variable, clase o parámetro (usa `E`, `Enemy`, etc.; dentro de un string literal `"Guard down"` sí es válido).
-2. **Llamadas `<decides>` con corchetes `[]`:** toda función o expresión failable se invoca con `[]`, nunca `()` (p. ej. `ValidateAge[42]`, `Array[Index]`).
+1. **`guard` es palabra reservada:** no uses `guard` como nombre de variable, clase o parámetro — verificado empíricamente en `verse-js` 0.1.1 (el checker lo rechaza como identificador); usa `E`, `Enemy`, etc. (dentro de un string literal `"Guard down"` sí es válido).
+2. **Llamadas `<decides>` con corchetes `[]`:** solo las **llamadas a funciones `<decides>`** usan `[]` (p. ej. `ValidateAge[42]`, nunca `()`); la indexación de arrays/maps (`Array[Index]`), las consultas `Opt?` y las comparaciones fallables no llevan esa notación (se usan dentro de un failure context).
 3. **`var` exige tipo explícito:** `var Health : int = 100` (no `var Health := 100`). Para reasignar usa `set Health = ...`; sin `set`, `=` es comparación.
 4. **`logic` en condiciones con `?`:** para comprobar verdad sobre una variable `logic`, usa `if (IsOpen?):` dentro del failure context.
 5. **Opcionalidad `?T` con `?`:** no existe `null`. Empaqueta con `option{42}`, representa ausencia con `false` y desenvuelve con `if (V := Opt?):`.

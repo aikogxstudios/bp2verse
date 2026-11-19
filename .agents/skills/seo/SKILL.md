@@ -76,9 +76,9 @@ Sitemap: https://example.com/sitemap.xml
 <!-- Self-referencing canonical (recommended) -->
 <link rel="canonical" href="https://example.com/current-page">
 
-<!-- For paginated content -->
-<link rel="canonical" href="https://example.com/products">
-<!-- Or use rel="prev" / rel="next" for explicit pagination -->
+<!-- For paginated content: self-referencing canonical per page -->
+<link rel="canonical" href="https://example.com/products?page=2">
+<!-- Google no longer uses rel="prev" / rel="next" to discover pagination sequences; link pages with standard <a href> -->
 ```
 
 ### XML sitemap

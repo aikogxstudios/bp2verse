@@ -37,14 +37,18 @@ El playground usa [`verse-js`](https://www.npmjs.com/package/verse-js)
   función `<decides>` de nivel de módulo que se evalúa sobre datos mutables
   necesita `<decides><transacts>` (verificado con verse-js 0.1.1; el ejemplo
   `ValidateAge` del playground lo declara).
-- **Limitación verificada en 0.1.1:** un `loop:` síncrono sin `break`
-  bloquea el hilo del navegador y no puede interrumpirse (la opción
-  `loopBudget` de la API se almacena pero no se aplica en la ruta rápida de
-  ejecución). El playground mitiga lo que puede: cancela la ejecución en
-  curso al pulsar Reiniciar o cambiar de ejemplo (`run.stop()`) y detiene
-  con aviso traducido las ejecuciones que superan 5 s, pero un bucle
-  síncrono infinito sigue congelando la pestaña. Se documenta como límite
-  del simulador y del runtime, no como bug de la web.
+- **Limitación verificada en 0.1.1:** `Sleep` existe pero exige
+  `using { /Verse.org/Simulation }` (sin el import falla con
+  "Unknown identifier 'Sleep'"); el ejemplo "Sleep y timeout" del playground
+  lo incluye. Con ejecuciones que se suspenden, la cancelación funciona:
+  Reiniciar (`run.stop()`) y el timeout de 5 s cortan la ejecución durante
+  el `Sleep` y no llega salida posterior (verificado: `Sleep(5.0)` + stop a
+  los 300 ms ⇒ `done` rechaza con `VerseTaskCancelled`, salida solo
+  `["start"]`). Un `loop:` síncrono sin suspensión, en cambio, bloquea el
+  hilo del navegador y no puede interrumpirse (el timeout no puede dispararse
+  con el hilo ocupado; la opción `loopBudget` de la API se almacena pero no
+  se aplica en la ruta rápida de ejecución). Se documenta como límite del
+  simulador y del runtime, no como bug de la web.
 
 ### Riesgos
 
@@ -57,6 +61,9 @@ El playground usa [`verse-js`](https://www.npmjs.com/package/verse-js)
   playground solo importa la librería (`verse-js`, `verse-js/extras/uefn`,
   `verse-js/adapters`). El bundle del navegador solo incluye lo importado;
   el coste es de instalación, no de payload.
+- `Sleep` y la suspensión viven en `/Verse.org/Simulation` (núcleo del
+  runtime, no del shim UEFN): los ejemplos que suspenden deben llevar el
+  `using` explícito.
 
 ### Política de dependencias
 

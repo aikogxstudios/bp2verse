@@ -334,9 +334,11 @@ const initialExample = EXAMPLES.find((ex) => ex.id === DEFAULT_EXAMPLE_ID) ?? EX
           try {
             await handle.done;
           } catch (err) {
-            // VerseRuntimeError / VerseRunCancelled.
+            // VerseRuntimeError / VerseTaskCancelled / VerseRunCancelled.
             if (!discarded && !timedOut) {
-              const isCancelled = err instanceof Error && err.name === 'VerseRunCancelled';
+              const isCancelled =
+                err instanceof Error &&
+                (err.name === 'VerseRunCancelled' || err.name === 'VerseTaskCancelled');
               if (!isCancelled) {
                 runtimeErrors.push(err instanceof Error ? err.message : String(err));
               }

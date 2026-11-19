@@ -25,6 +25,7 @@ import CodeBlock from '../../../components/CodeBlock.astro';
 import Callout from '../../../components/Callout.astro';
 import Compare from '../../../components/Compare.astro';
 import Exercise from '../../../components/Exercise.astro';
+import { Fragment } from 'astro/jsx-runtime';
 import {
   m0l04Main,
   m0l04Solution,
@@ -53,25 +54,25 @@ resultado con **`Set Health`**, y pasa por un **`Branch`** (`Health <= 0` o
 La misma lógica, contada dos veces: la cadena de nodos y su forma en Verse.
 
 <Compare>
-  <div slot="bp">
-    <ul>
-      <li><strong>Blueprint Class</strong> con la variable <code>Health</code> (<code>Integer</code>, <code>100</code>)</li>
-      <li><strong>Event TakeDamage</strong> con entrada <code>Amount</code> (<code>Integer</code>)</li>
-      <li><strong>Set Health</strong> ← <code>Max (Integer)</code> de <code>0</code> y <code>Health - Amount</code></li>
-      <li><strong>Branch</strong> ← <code>Equal (Integer)</code>: <code>Health == 0</code></li>
-      <li>Pin <strong>True</strong> → <strong>Print String</strong> <code>"Guard down"</code></li>
-    </ul>
-  </div>
-  <div slot="verse">
-    <ul>
-      <li><code>enemy := class:</code> — la clase reutilizable</li>
-      <li><code>var Health : int = 100</code> — el estado mutable</li>
-      <li><code>TakeDamage(Amount : int) : void</code> — el método que recibe el daño</li>
-      <li><code>Max(0, Health - Amount)</code> — el clamp sin nodos</li>
-      <li><code>if (Health = 0):</code> — el Branch (con un solo <code>=</code>)</li>
-      <li><code>Print("Guard down")</code> — la salida</li>
-    </ul>
-  </div>
+<Fragment slot="bp">
+
+- **Blueprint Class** con la variable `Health` (`Integer`, `100`)
+- **Event TakeDamage** con entrada `Amount` (`Integer`)
+- **Set Health** ← `Max (Integer)` de `0` y `Health - Amount`
+- **Branch** ← `Equal (Integer)`: `Health == 0`
+- Pin **True** → **Print String** `"Guard down"`
+
+</Fragment>
+<Fragment slot="verse">
+
+- `enemy := class:` — la clase reutilizable
+- `var Health : int = 100` — el estado mutable
+- `TakeDamage(Amount : int) : void` — el método que recibe el daño
+- `Max(0, Health - Amount)` — el clamp sin nodos
+- `if (Health = 0):` — el Branch (con un solo `=`)
+- `Print("Guard down")` — la salida
+
+</Fragment>
 </Compare>
 
 ## Equivalente en Verse
@@ -119,26 +120,28 @@ Guard down
 </Callout>
 
 <Exercise lang="es">
-  **Enunciado:** Amplía la clase `enemy` con una constante
-  `MaxHealth : int = 100` y un método `Heal(Amount : int) : void` que sume
-  `Amount` a `Health` sin superar `MaxHealth` usando
-  `Min(MaxHealth, Health + Amount)`, e imprima `"Enemy HP: {Health}"`. Luego
-  instancia `E := enemy{}` y ejecuta en orden: `E.TakeDamage(60)`,
-  `E.Heal(25)` y `E.TakeDamage(70)`.
+**Enunciado:** Amplía la clase `enemy` con una constante
+`MaxHealth : int = 100` y un método `Heal(Amount : int) : void` que sume
+`Amount` a `Health` sin superar `MaxHealth` usando
+`Min(MaxHealth, Health + Amount)`, e imprima `"Enemy HP: {Health}"`. Luego
+instancia `E := enemy{}` y ejecuta en orden: `E.TakeDamage(60)`,
+`E.Heal(25)` y `E.TakeDamage(70)`.
 
-  <div slot="hint">
-    Escribe <code>Heal(Amount : int) : void =</code> al mismo nivel de indentación
-    que <code>TakeDamage</code> (4 espacios) y usa{' '}
-    <code>set Health = Min(MaxHealth, Health + Amount)</code> seguido de{' '}
-    <code>Print("Enemy HP: {'{Health}'}")</code> (8 espacios).
-  </div>
+<Fragment slot="hint">
 
-  <CodeBlock slot="solution" lang="es" label="solucion.verse" code={m0l04Solution} />
+Escribe `Heal(Amount : int) : void =` al mismo nivel de indentación que
+`TakeDamage` (4 espacios) y usa
+`set Health = Min(MaxHealth, Health + Amount)` seguido de
+`Print("Enemy HP: {Health}")` (8 espacios).
 
-  <CodeBlock
-    slot="solution"
-    lang="es"
-    label="Salida esperada (verse-js 0.1.1)"
-    code={m0l04SolutionOutput}
-  />
+</Fragment>
+
+<CodeBlock slot="solution" lang="es" label="solucion.verse" code={m0l04Solution} />
+
+<CodeBlock
+slot="solution"
+lang="es"
+label="Salida esperada (verse-js 0.1.1)"
+code={m0l04SolutionOutput}
+/>
 </Exercise>

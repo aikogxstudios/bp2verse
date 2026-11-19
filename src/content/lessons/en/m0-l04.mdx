@@ -25,6 +25,7 @@ import CodeBlock from '../../../components/CodeBlock.astro';
 import Callout from '../../../components/Callout.astro';
 import Compare from '../../../components/Compare.astro';
 import Exercise from '../../../components/Exercise.astro';
+import { Fragment } from 'astro/jsx-runtime';
 import {
   m0l04Main,
   m0l04Solution,
@@ -53,25 +54,25 @@ with **`Set Health`**, and runs a **`Branch`** (`Health <= 0` or
 The same logic, told twice: the node chain and its Verse shape.
 
 <Compare>
-  <div slot="bp">
-    <ul>
-      <li><strong>Blueprint Class</strong> with a <code>Health</code> variable (<code>Integer</code>, <code>100</code>)</li>
-      <li><strong>Event TakeDamage</strong> with an <code>Amount</code> input (<code>Integer</code>)</li>
-      <li><strong>Set Health</strong> ← <code>Max (Integer)</code> of <code>0</code> and <code>Health - Amount</code></li>
-      <li><strong>Branch</strong> ← <code>Equal (Integer)</code>: <code>Health == 0</code></li>
-      <li><strong>True</strong> pin → <strong>Print String</strong> <code>"Guard down"</code></li>
-    </ul>
-  </div>
-  <div slot="verse">
-    <ul>
-      <li><code>enemy := class:</code> — the reusable class</li>
-      <li><code>var Health : int = 100</code> — the mutable state</li>
-      <li><code>TakeDamage(Amount : int) : void</code> — the damage-taking method</li>
-      <li><code>Max(0, Health - Amount)</code> — the clamp, no nodes needed</li>
-      <li><code>if (Health = 0):</code> — the Branch (a single <code>=</code>)</li>
-      <li><code>Print("Guard down")</code> — the output</li>
-    </ul>
-  </div>
+<Fragment slot="bp">
+
+- **Blueprint Class** with a `Health` variable (`Integer`, `100`)
+- **Event TakeDamage** with an `Amount` input (`Integer`)
+- **Set Health** ← `Max (Integer)` of `0` and `Health - Amount`
+- **Branch** ← `Equal (Integer)`: `Health == 0`
+- **True** pin → **Print String** `"Guard down"`
+
+</Fragment>
+<Fragment slot="verse">
+
+- `enemy := class:` — the reusable class
+- `var Health : int = 100` — the mutable state
+- `TakeDamage(Amount : int) : void` — the damage-taking method
+- `Max(0, Health - Amount)` — the clamp, no nodes needed
+- `if (Health = 0):` — the Branch (a single `=`)
+- `Print("Guard down")` — the output
+
+</Fragment>
 </Compare>
 
 ## The Verse Equivalent
@@ -120,25 +121,27 @@ Guard down
 </Callout>
 
 <Exercise lang="en">
-  **Prompt:** Extend `enemy` with a constant `MaxHealth : int = 100` and a
-  `Heal(Amount : int) : void` method that adds `Amount` to `Health` without
-  exceeding `MaxHealth` using `Min(MaxHealth, Health + Amount)`, then prints
-  `"Enemy HP: {Health}"`. Instantiate `E := enemy{}` and call in order:
-  `E.TakeDamage(60)`, `E.Heal(25)`, and `E.TakeDamage(70)`.
+**Prompt:** Extend `enemy` with a constant `MaxHealth : int = 100` and a
+`Heal(Amount : int) : void` method that adds `Amount` to `Health` without
+exceeding `MaxHealth` using `Min(MaxHealth, Health + Amount)`, then prints
+`"Enemy HP: {Health}"`. Instantiate `E := enemy{}` and call in order:
+`E.TakeDamage(60)`, `E.Heal(25)`, and `E.TakeDamage(70)`.
 
-  <div slot="hint">
-    Place <code>Heal(Amount : int) : void =</code> at the same indentation as{' '}
-    <code>TakeDamage</code> (4 spaces), and indent{' '}
-    <code>set Health = Min(MaxHealth, Health + Amount)</code> and{' '}
-    <code>Print("Enemy HP: {'{Health}'}")</code> underneath (8 spaces).
-  </div>
+<Fragment slot="hint">
 
-  <CodeBlock slot="solution" lang="en" label="solution.verse" code={m0l04Solution} />
+Place `Heal(Amount : int) : void =` at the same indentation as
+`TakeDamage` (4 spaces), and indent
+`set Health = Min(MaxHealth, Health + Amount)` and
+`Print("Enemy HP: {Health}")` underneath (8 spaces).
 
-  <CodeBlock
-    slot="solution"
-    lang="en"
-    label="Expected output (verse-js 0.1.1)"
-    code={m0l04SolutionOutput}
-  />
+</Fragment>
+
+<CodeBlock slot="solution" lang="en" label="solution.verse" code={m0l04Solution} />
+
+<CodeBlock
+slot="solution"
+lang="en"
+label="Expected output (verse-js 0.1.1)"
+code={m0l04SolutionOutput}
+/>
 </Exercise>

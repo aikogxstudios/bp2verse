@@ -37,7 +37,7 @@ E.TakeDamage(90)`,
   },
   {
     id: 'decides',
-    code: `ValidateAge(Age : int)<decides> : int =
+    code: `ValidateAge(Age : int)<decides><transacts> : int =
     Age >= 0
     Age <= 150
     Age

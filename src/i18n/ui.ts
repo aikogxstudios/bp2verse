@@ -104,6 +104,7 @@ const es = {
   'pg.example.hello': 'Hola Mundo',
   'pg.example.class': 'Clase con estado',
   'pg.example.decides': 'Fallo y <decides>',
+  'pg.example.sleep': 'Sleep y timeout',
   'pg.run': 'Ejecutar',
   'pg.reset': 'Reiniciar',
   'pg.editor': 'Editor de código Verse',
@@ -114,7 +115,8 @@ const es = {
   'pg.loading': 'Cargando el runtime de Verse…',
   'pg.runtime.error':
     'No se pudo cargar el runtime de Verse (verse-js). Comprueba tu conexión y vuelve a intentarlo.',
-  'pg.run.timeout': 'Ejecución detenida tras 5 s (posible bucle infinito).',
+  'pg.run.timeout':
+    'Ejecución detenida tras 5 s: demasiado tiempo o posible bucle infinito.',
   'pg.console.empty': 'Ejecuta el programa para ver la salida aquí.',
 
   'footer.tagline': 'De Blueprints a Verse, sin empezar de cero.',
@@ -220,6 +222,7 @@ const en: typeof es = {
   'pg.example.hello': 'Hello World',
   'pg.example.class': 'Class with state',
   'pg.example.decides': 'Failure and <decides>',
+  'pg.example.sleep': 'Sleep and timeout',
   'pg.run': 'Run',
   'pg.reset': 'Reset',
   'pg.editor': 'Verse code editor',
@@ -230,7 +233,8 @@ const en: typeof es = {
   'pg.loading': 'Loading the Verse runtime…',
   'pg.runtime.error':
     'The Verse runtime (verse-js) could not be loaded. Check your connection and try again.',
-  'pg.run.timeout': 'Execution stopped after 5 s (possible infinite loop).',
+  'pg.run.timeout':
+    'Execution stopped after 5 s: too long or a possible infinite loop.',
   'pg.console.empty': 'Run the program to see its output here.',
 
   'footer.tagline': 'From Blueprints to Verse, without starting over.',

@@ -49,4 +49,12 @@ if (B := ValidateAge[200]):
 else:
     Print("rejected")`,
   },
+  {
+    id: 'sleep',
+    code: `using { /Verse.org/Simulation }
+
+Print("start")
+Sleep(2.0)
+Print("done")`,
+  },
 ];

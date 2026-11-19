@@ -8,12 +8,20 @@ interface Props {
 const { lang } = Astro.props;
 const t = useTranslations(lang);
 const year = new Date().getFullYear();
+const licenseCodeUrl = 'https://github.com/aikogxstudios/bp2verse/blob/main/LICENSE';
+const licenseContentUrl = 'https://github.com/aikogxstudios/bp2verse/blob/main/LICENSE-CONTENT';
 ---
 
 <footer class="site-footer">
   <div class="container footer-inner">
     <p class="footer-tagline">{t('footer.tagline')}</p>
     <p class="footer-disclaimer">{t('footer.disclaimer')}</p>
-    <p class="footer-license">© {year} · {t('footer.license')}</p>
+    <p class="footer-license">
+      © {year}
+      {' · '}
+      <a href={licenseCodeUrl}>{t('footer.license.code')}</a>
+      {' · '}
+      <a href={licenseContentUrl}>{t('footer.license.content')}</a>
+    </p>
   </div>
 </footer>

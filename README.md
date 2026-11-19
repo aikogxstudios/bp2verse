@@ -58,6 +58,11 @@ npm run preview # previsualizar el build
 - **Sin cuentas para empezar.** El progreso se guarda en el navegador; las cuentas, si llegan, serán opcionales.
 - **Abierto.** Repo público, contenido en Markdown, fácil de corregir con un PR.
 
-## Licencia
+## Licencias
 
-Por decidir (probablemente MIT para el código y CC BY-SA para el contenido).
+Dos licencias según el tipo de material:
+
+- **Código y configuración** (`src/`, `scripts/`, workflows): [MIT](LICENSE).
+- **Contenido editorial** (lecciones, textos de la web, `docs/`): [CC BY-SA 4.0](LICENSE-CONTENT).
+
+Qué cubre cada una y cómo atribuir: [LICENSING.md](LICENSING.md).

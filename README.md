@@ -4,7 +4,7 @@
 
 Web pública y abierta que enseña **Verse** (el lenguaje de Epic Games para Unreal Engine 6) a desarrolladores que ya piensan en **Blueprints**. La idea es simple: no aprender un lenguaje nuevo desde cero, sino **traducir** lo que ya sabes —eventos, nodos, variables, casts, interfaces— a su equivalente en Verse, con ejemplos lado a lado y un playground para probar.
 
-> Estado: **v0.1 — landing bilingüe + mapa BP→Verse; playground en curso**. La documentación de investigación vive en `docs/research/` y el plan en `docs/PLAN.md`.
+> Estado: **v0.2 — landing bilingüe, mapa BP→Verse y playground funcional**. La documentación de investigación vive en `docs/research/` y el plan en `docs/PLAN.md`.
 
 ## Para quién
 
@@ -53,7 +53,7 @@ npm run preview # previsualizar el build
 ## Principios
 
 - **Fuentes oficiales primero.** Nada de sintaxis inventada: cada afirmación sobre Verse o Blueprints se apoya en documentación de Epic o se marca como no verificada.
-- **Español primero, inglés después.** El código siempre en inglés.
+- **Bilingüe desde el inicio.** Español canónico en `/` e inglés en `/en/`; el código siempre en inglés.
 - **Estático y barato.** Que se pueda servir desde GitHub o Cloudflare sin servidores que mantener.
 - **Sin cuentas para empezar.** El progreso se guarda en el navegador; las cuentas, si llegan, serán opcionales.
 - **Abierto.** Repo público, contenido en Markdown, fácil de corregir con un PR.

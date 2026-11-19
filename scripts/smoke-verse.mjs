@@ -1,5 +1,6 @@
 // Smoke test del runtime verse-js 0.1.1 en Node.
-// Ejecuta los 3 snippets del playground y falla si la salida no coincide.
+// Ejecuta los 4 snippets del playground y falla si la salida no coincide.
+// El caso 'sleep' comprueba además que la ejecución tarda ~2 s (suspensión real).
 import { createHost } from 'verse-js';
 import { uefnModules } from 'verse-js/extras/uefn';
 import { MemoryStorageAdapter } from 'verse-js/adapters';
@@ -40,26 +41,44 @@ else:
     Print("rejected")`,
     expected: ['ok 42', 'rejected'],
   },
+  {
+    name: 'sleep',
+    source: `using { /Verse.org/Simulation }
+
+Print("start")
+Sleep(2.0)
+Print("done")`,
+    expected: ['start', 'done'],
+    minMs: 1500,
+    maxMs: 4000,
+  },
 ];
 
 let failed = 0;
 
 for (const c of cases) {
   const host = createHost({ modules: uefnModules, persistence: new MemoryStorageAdapter() });
+  const t0 = Date.now();
   const result = await host.execute(c.source);
+  const elapsed = Date.now() - t0;
 
   const outputOk = JSON.stringify(result.output) === JSON.stringify(c.expected);
   const noErrors = result.errors.length === 0;
+  const timingOk =
+    c.minMs === undefined || (elapsed >= c.minMs && elapsed <= c.maxMs);
 
-  if (outputOk && noErrors) {
-    console.log(`ok    ${c.name}`);
+  if (outputOk && noErrors && timingOk) {
+    console.log(`ok    ${c.name} (${elapsed} ms)`);
   } else {
     failed += 1;
-    console.error(`FAIL  ${c.name}`);
+    console.error(`FAIL  ${c.name} (${elapsed} ms)`);
     console.error(`  expected: ${JSON.stringify(c.expected)}`);
     console.error(`  output:   ${JSON.stringify(result.output)}`);
     if (result.errors.length > 0) {
       console.error(`  errors:   ${JSON.stringify(result.errors)}`);
+    }
+    if (!timingOk && c.minMs !== undefined) {
+      console.error(`  timing:   ${elapsed} ms fuera de [${c.minMs}, ${c.maxMs}] ms`);
     }
   }
 }

@@ -14,7 +14,7 @@ const es = {
 
   'nav.playground': 'Playground',
   'nav.demo': 'Demo',
-  'nav.lessons': 'Temario',
+  'nav.lessons': 'Lecciones',
   'nav.how': 'Cómo funciona',
   'nav.github': 'GitHub',
   'nav.lang': 'English',
@@ -119,6 +119,35 @@ const es = {
     'Ejecución detenida tras 5 s: demasiado tiempo o posible bucle infinito.',
   'pg.console.empty': 'Ejecuta el programa para ver la salida aquí.',
 
+  'lessons.meta.title': 'Lecciones — bp2verse',
+  'lessons.meta.description':
+    'Todas las lecciones de bp2verse: de Blueprints a Verse, lado a lado y con cada snippet verificado.',
+  'lessons.index.title': 'Lecciones',
+  'lessons.index.subtitle':
+    'Cada lección parte de un patrón que ya conoces de Blueprints y muestra su forma exacta en Verse, con snippets verificados y trampas del migrante.',
+  'lessons.empty': 'Aún no hay lecciones publicadas.',
+
+  'lesson.crumb.lessons': 'Lecciones',
+  'lesson.module': 'Módulo',
+  'lesson.duration': 'Duración',
+  'lesson.run.browser': 'Se ejecuta en el navegador',
+  'lesson.run.uefn-only': 'Solo en UEFN',
+  'lesson.verified': 'Verificado',
+  'lesson.sources': 'Fuentes oficiales',
+  'lesson.prev': 'Anterior',
+  'lesson.next': 'Siguiente',
+  'lesson.callout.trap': 'Trampa del migrante',
+  'lesson.callout.note': 'Nota',
+  'lesson.callout.warn': 'Atención',
+  'lesson.exercise': 'Ejercicio',
+  'lesson.hint': 'Pista',
+  'lesson.solution': 'Solución',
+  'lesson.code': 'Bloque de código Verse',
+
+  'a11y.breadcrumb': 'Migas de pan',
+  'a11y.lesson.nav': 'Navegación entre lecciones',
+  'a11y.lesson.sources': 'Fuentes oficiales de la lección',
+
   'footer.tagline': 'De Blueprints a Verse, sin empezar de cero.',
   'footer.disclaimer':
     'Proyecto no afiliado a Epic Games. Verse, Unreal Engine y Blueprints son marcas de Epic Games, Inc.',
@@ -133,7 +162,7 @@ const en: typeof es = {
 
   'nav.playground': 'Playground',
   'nav.demo': 'Demo',
-  'nav.lessons': 'Curriculum',
+  'nav.lessons': 'Lessons',
   'nav.how': 'How it works',
   'nav.github': 'GitHub',
   'nav.lang': 'Español',
@@ -237,6 +266,35 @@ const en: typeof es = {
   'pg.run.timeout':
     'Execution stopped after 5 s: too long or a possible infinite loop.',
   'pg.console.empty': 'Run the program to see its output here.',
+
+  'lessons.meta.title': 'Lessons — bp2verse',
+  'lessons.meta.description':
+    'Every bp2verse lesson: from Blueprints to Verse, side by side, with every snippet verified.',
+  'lessons.index.title': 'Lessons',
+  'lessons.index.subtitle':
+    'Every lesson starts from a pattern you already know from Blueprints and shows its exact Verse shape, with verified snippets and migrant traps.',
+  'lessons.empty': 'No lessons published yet.',
+
+  'lesson.crumb.lessons': 'Lessons',
+  'lesson.module': 'Module',
+  'lesson.duration': 'Duration',
+  'lesson.run.browser': 'Runs in your browser',
+  'lesson.run.uefn-only': 'UEFN only',
+  'lesson.verified': 'Verified',
+  'lesson.sources': 'Official sources',
+  'lesson.prev': 'Previous',
+  'lesson.next': 'Next',
+  'lesson.callout.trap': 'Migrant trap',
+  'lesson.callout.note': 'Note',
+  'lesson.callout.warn': 'Warning',
+  'lesson.exercise': 'Exercise',
+  'lesson.hint': 'Hint',
+  'lesson.solution': 'Solution',
+  'lesson.code': 'Verse code block',
+
+  'a11y.breadcrumb': 'Breadcrumbs',
+  'a11y.lesson.nav': 'Lesson navigation',
+  'a11y.lesson.sources': 'Official lesson sources',
 
   'footer.tagline': 'From Blueprints to Verse, without starting over.',
   'footer.disclaimer':

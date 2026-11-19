@@ -25,11 +25,29 @@ export function getLangFromUrl(url: URL): Lang {
   return defaultLang;
 }
 
+/**
+ * Segmentos de ruta que se traducen por idioma. La clave es la ruta canónica
+ * (ES, sin prefijo) y afecta también a sus rutas hijas (p. ej. `/lecciones/m0-l04`).
+ */
+const routeAliases: Record<string, Record<Lang, string>> = {
+  '/lecciones': { es: '/lecciones', en: '/lessons' },
+};
+
+/** Traduce el primer segmento de una ruta canónica al idioma dado. */
+function translateRoute(path: string, lang: Lang): string {
+  for (const [canonical, aliases] of Object.entries(routeAliases)) {
+    if (path === canonical || path.startsWith(`${canonical}/`)) {
+      return aliases[lang] + path.slice(canonical.length);
+    }
+  }
+  return path;
+}
+
 export function localizedPath(lang: Lang, path = '/'): string {
   const clean = path.startsWith('/') ? path : `/${path}`;
-  const localized =
-    lang === defaultLang ? clean : clean === '/' ? `/${lang}/` : `/${lang}${clean}`;
-  return withBase(localized);
+  if (lang === defaultLang) return withBase(clean);
+  const localized = translateRoute(clean, lang);
+  return withBase(localized === '/' ? `/${lang}/` : `/${lang}${localized}`);
 }
 
 export function stripLangFromPath(pathname: string): string {

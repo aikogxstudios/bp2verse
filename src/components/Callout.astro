@@ -1,0 +1,26 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  variant: 'trap' | 'note' | 'warn';
+  /** Título opcional; por defecto se usa el del variante según el idioma. */
+  title?: string;
+}
+
+const { lang, variant, title } = Astro.props;
+const t = useTranslations(lang);
+const defaultTitles = {
+  trap: 'lesson.callout.trap',
+  note: 'lesson.callout.note',
+  warn: 'lesson.callout.warn',
+} as const;
+const heading = title ?? t(defaultTitles[variant]);
+---
+
+<aside class:list={['callout', `callout--${variant}`]}>
+  <p class="callout-title">{heading}</p>
+  <div class="callout-body">
+    <slot />
+  </div>
+</aside>

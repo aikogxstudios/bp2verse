@@ -1,0 +1,25 @@
+---
+interface Props {
+  /** Cabecera de la columna izquierda (por defecto, Blueprint). */
+  bpLabel?: string;
+  /** Cabecera de la columna derecha (por defecto, Verse). */
+  verseLabel?: string;
+}
+
+const { bpLabel = 'Blueprint', verseLabel = 'Verse' } = Astro.props;
+---
+
+<div class="compare">
+  <section class="compare-col compare-col--bp">
+    <h3 class="compare-head compare-head--bp">{bpLabel}</h3>
+    <div class="compare-body">
+      <slot name="bp" />
+    </div>
+  </section>
+  <section class="compare-col compare-col--verse">
+    <h3 class="compare-head compare-head--verse">{verseLabel}</h3>
+    <div class="compare-body">
+      <slot name="verse" />
+    </div>
+  </section>
+</div>

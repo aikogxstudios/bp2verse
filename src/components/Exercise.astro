@@ -1,0 +1,39 @@
+---
+import { useTranslations, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+const t = useTranslations(lang);
+const hasHint = Astro.slots.has('hint');
+const hasSolution = Astro.slots.has('solution');
+---
+
+<section class="exercise">
+  <h2 class="exercise-title">{t('lesson.exercise')}</h2>
+  <div class="exercise-body">
+    <slot />
+  </div>
+  {
+    hasHint && (
+      <details class="exercise-details">
+        <summary>{t('lesson.hint')}</summary>
+        <div class="exercise-details-body">
+          <slot name="hint" />
+        </div>
+      </details>
+    )
+  }
+  {
+    hasSolution && (
+      <details class="exercise-details">
+        <summary>{t('lesson.solution')}</summary>
+        <div class="exercise-details-body">
+          <slot name="solution" />
+        </div>
+      </details>
+    )
+  }
+</section>
